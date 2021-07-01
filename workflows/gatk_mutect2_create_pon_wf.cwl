@@ -1,6 +1,6 @@
 cwlVersion: v1.2
 class: Workflow
-id: gatk_mutect2_generate_pon
+id: gatk_create_mutect2_pon
 label: GATK Mutect2 Generate Panel of Normals
 doc: |-
   # GATK Mutect2 Generate Panel of Normals Workflow
@@ -19,8 +19,8 @@ inputs:
   input_bcram: {type: "File[]", secondaryFiles: ["^.bai?", ".bai?", "^.crai?", ".crai?"], inputBinding: {prefix: -I}, doc: "Input bam / cram file"}
   interval_list: {type: "File?", doc: "GATK intervals list-style, or bed file.  Recommend canocical chromosomes with N regions removed"}
   output_basename: {type: string, doc: "Output panel of normal vcf basename"}
-  cpus: { type: 'int?', default: 4, doc: "CPUs to allocate to call task"}
-  ram: { type: 'int?', default: 8, doc: "RAM to allocate to call task in gb"}
+  cpus: {type: 'int?', default: 4, doc: "CPUs to allocate to call task"}
+  ram: {type: 'int?', default: 8, doc: "RAM to allocate to call task in gb"}
 
 outputs:
   panel_of_normal_vcf: {type: 'File', outputSource: create_pon/panel_of_normal_vcf}
@@ -33,13 +33,14 @@ steps:
     in:
       reference: reference
       input_bcram: input_bcram
-      mnp_distance: 0
+      mnp_distance:
+        valueFrom: ${return 0}
       ram: ram
       cpus: cpus
     out: [mutect2_output_vcf]
 
   create_pon:
-    run: ../tools/rnaseqc.cwl
+    run: ../tools/gatk_mutect2_create_pon.cwl
     in:
       reference: reference
       input_vcfs: mutect2_tumor_only/mutect2_output_vcf
