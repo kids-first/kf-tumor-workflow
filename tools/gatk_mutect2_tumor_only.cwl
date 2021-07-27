@@ -25,7 +25,7 @@ inputs:
   reference: {type: "File", secondaryFiles: [^.dict, .fai], inputBinding: {prefix: -R}}
   input_bcram: {type: "File", secondaryFiles: ["^.bai?", ".bai?", "^.crai?", ".crai?"], inputBinding: {prefix: -I}, doc: "Input bam / cram file"}
   mnp_distance: {type: "int?", inputBinding: {prefix: --max-mnp-distance}, doc: "Max distance to merge substitutions into one MNP"}
-  panel_of_normals: {type: "File?", inputBinding: {prefix: --panel_of_normals}, doc: "Panel of normal vcf file"}
+  panel_of_normals: {type: "File?", inputBinding: {prefix: --panel-of-normals}, doc: "Panel of normal vcf file"}
   ram: {type: "int?", default: 2, doc: "In GB"}
   cpu: {type: "int?", default: 4, doc: "Number of CPUs to request"}
 
