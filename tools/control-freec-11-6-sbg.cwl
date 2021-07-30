@@ -588,7 +588,7 @@ doc: >-
 
   * In order to create a **BAF profile**, one of the following options must be
   implemented:
-      * **mateFile** + **Known SNPs** 
+      * **mateFile** + **Known SNPs**
       * **mateCopyNumberFile** + **mateFile** + **KnownSNPs**
       * **mateCopyNumberFile** + **miniPileup** + **KnownSNPs**
 
@@ -629,7 +629,7 @@ doc: >-
 
   |:--------------------:|:----:|:----------:|:--------:|:--------:|
 
-  |         2x12 (Normal-Tumor)         |  WES | c4.2xlarge |  1h 52m  |   
+  |         2x12 (Normal-Tumor)         |  WES | c4.2xlarge |  1h 52m  |
   0.8   |
 
   |   100 (Tumor-only)   |  WGS | c4.2xlarge |  17h 43m |     7    |
@@ -647,7 +647,7 @@ doc: >-
 
   *Cost can be significantly reduced by using **spot instances**. Visit the
   [Knowledge Center](https://docs.sevenbridges.com/docs/about-spot-instances)
-  for more details.*  
+  for more details.*
 
 
   ###References
