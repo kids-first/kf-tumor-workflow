@@ -7,13 +7,15 @@ requirements:
   - class: SubworkflowFeatureRequirement
 inputs:
   # Required
-  reference_fasta: { type: File, secondaryFiles: .fai, '^.dict?' }
+  reference_fasta: { type: File }
+  reference_fai: {type: File }
+  reference_dict: {type: 'File?'}
   input_tumor_aligned: {type: "File", secondaryFiles: ["^.bai?", ".bai?", "^.crai?", ".crai?"], inputBinding: {prefix: -I}, doc: "Input bam / cram file"}
   input_tumor_name: string
 
-  mate_copynumber_file_sample: {type: File?, doc: "Tumor cpn file from previous run. If used, will override bam use"}
-  gem_mappability_file: {type: File?, doc: "GEM mappability file to make read count adjustments with"}
-  min_subclone_presence: {type: float?, doc: "Use if you want to detect subclones. Recommend 0.2 for WGS, 0.3 for WXS"}
+  mate_copynumber_file_sample: {type: 'File?', doc: "Tumor cpn file from previous run. If used, will override bam use"}
+  gem_mappability_file: {type: 'File?', doc: "GEM mappability file to make read count adjustments with"}
+  min_subclone_presence: {type: 'float?', doc: "Use if you want to detect subclones. Recommend 0.2 for WGS, 0.3 for WXS"}
   cfree_chr_len: { type: File, doc: "file with chromosome lengths" }
   cfree_ploidy: { type: 'int[]', doc: "Array of ploidy possibilities for ControlFreeC to try" }
   output_basename: { type: string, doc: "String value to use as basename for outputs" }
@@ -21,7 +23,6 @@ inputs:
 
   # Optional with One Default
   cfree_threads: { type: 'int?', default: 16, doc: "For ControlFreeC. Recommend 16 max, as I/O gets saturated after that losing any advantage" }
-  cfree_mate_orientation_control: { type: ['null', { type: enum, name: mate_orientation_control, symbols: ["0", "FR", "RF", "FF"] }], default: "FR", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)" }
   cfree_mate_orientation_sample: { type: ['null', { type: enum, name: mate_orientation_sample, symbols: ["0", "FR", "RF", "FF"] }], default: "FR", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)" }
 
   # Optional with Multiple Defaults (handled in choose_defaults)
