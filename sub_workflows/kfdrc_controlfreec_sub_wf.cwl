@@ -51,7 +51,6 @@ steps:
   control_free_c:
     run: ../tools/control-freec-11-6-sbg.cwl
     in:
-      mate_copynumber_file_control: mate_copynumber_file_control
       mate_copynumber_file_sample: mate_copynumber_file_sample
       gem_mappability_file: gem_mappability_file
       min_subclone_presence: min_subclone_presence
