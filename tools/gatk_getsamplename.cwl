@@ -25,11 +25,11 @@ arguments:
       /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" GetSampleName
 
 inputs:
-  override_samplename: {type: 'string?', doc: "If the samplename is known ahead of time or different than the one in the header, provide it here. When used in a workflow, this value can be used to skip this task."}
-  input_reads: {type: 'File', inputBinding: {prefix: "--input", position: 2}, doc: "BAM/SAM/CRAM file containing reads."}
-  output_filename: {type: 'string?', default: "sample_name.txt", inputBinding: {prefix: "--output", position: 2}, doc: "Output file with only the sample name in it."}
-  reference_fasta: {type: 'File', secondaryFiles: [{pattern: ".fai", required: true},{pattern: "^.dict", required: true}], inputBinding: {prefix: "--reference", position: 2}, doc: "Reference sequence fasta and index"}
-  extra_args: {type: 'string?', inputBinding: {position: 3}, doc: "Any additional arguments for this tool. See GATK Documentation for complete list of options. Example input: --interval-merging-rule OVERLAPPING_ONLY"}
+  override_samplename: { type: 'string?', doc: "If the samplename is known ahead of time or different than the one in the header, provide it here. When used in a workflow, this value can be used to skip this task." }
+  input_reads: { type: 'File', inputBinding: { prefix: "--input", position: 2 }, doc: "BAM/SAM/CRAM file containing reads." }
+  output_filename: { type: 'string?', default: "sample_name.txt", inputBinding: { prefix: "--output", position: 2 }, doc: "Output file with only the sample name in it." }
+  reference_fasta: { type: 'File', secondaryFiles: [{ pattern: ".fai", required: true },{ pattern: "^.dict", required: true }], inputBinding: { prefix: "--reference", position: 2 }, doc: "Reference sequence fasta and index" }
+  extra_args: { type: 'string?', inputBinding: { position: 3 }, doc: "Any additional arguments for this tool. See GATK Documentation for complete list of options. Example input: --interval-merging-rule OVERLAPPING_ONLY" }
   cores: { type: 'int?', default: 1, doc: "Minimum reserved number of CPU cores for the task." }
   max_memory: { type: 'int?', default: 2, doc: "GB of RAM to allocate to the task." }
 outputs:
