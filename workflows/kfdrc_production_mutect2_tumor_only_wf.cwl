@@ -22,6 +22,9 @@ inputs:
   output_basename: { type: 'string', doc: "String value to use as basename for outputs" }
   wgs_or_wxs: { type: { type: enum, name: wgs_or_wxs, symbols: ["WGS", "WXS"] }, doc: "Select if this run is WGS or WXS" }
 
+  # Intervallist Options
+  scatter_count: {type: 'int?', default: 50, doc: "The number of files into which to scatter the resulting list by locus; in some situations, fewer intervals may be emitted"}
+
   # Mutect2 Options
   alleles: {type: 'File?', secondaryFiles: ['.tbi']}
   panel_of_normals: {type: 'File?', secondaryFiles: ['.tbi']}
@@ -119,8 +122,7 @@ steps:
       interval_list: select_interval_list/output
       reference_dict: prepare_reference/reference_dict
       exome_flag: choose_defaults/out_exome_flag
-      scatter_ct:
-        valueFrom: ${return 50}
+      scatter_ct: scatter_count
       bands:
         valueFrom: ${return 80000000}
     out: [output]

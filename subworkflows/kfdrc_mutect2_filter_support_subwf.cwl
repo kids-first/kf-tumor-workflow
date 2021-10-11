@@ -41,28 +41,13 @@ inputs:
   getpileup_memory: {type: 'int?'}
   learnorientation_memory: {type: 'int?'}
   output_basename: string
-  f1r2_counts: {type: "File[]", doc: "orientation counts from mutect2 outputs"}
 
 outputs:
   contamination_table: {type: 'File', outputSource: gatk_calculate_contamination/contamination_table}
   segmentation_table: {type: 'File', outputSource: gatk_calculate_contamination/segmentation_table}
-  f1r2_bias: {type: 'File', outputSource: gatk_learn_orientation_bias/f1r2_bias}
   
 steps:
-
-  gatk_learn_orientation_bias:
-    run: ../tools/gatk_learnorientationbias.cwl
-    label: Gatk learn bias
-    in:
-      input_tgz: f1r2_counts
-      output_basename: output_basename
-      tool_name:
-        valueFrom: ${return "mutect2"}
-      max_memory: learnorientation_memory
-    out: [f1r2_bias]
-
   gatk_get_tumor_pileup_summaries:
-    label: GATK tumor pileup scatter
     run: ../tools/gatk_getpileupsummaries.cwl
     in:
       aligned_reads: input_tumor_aligned
@@ -74,8 +59,6 @@ steps:
     out: [pileup_table]
 
   gatk_get_normal_pileup_summaries:
-
-    label: GATK normal pileup scatter
     run: ../tools/gatk_getpileupsummaries.cwl
     in:
       aligned_reads: input_normal_aligned
@@ -87,7 +70,6 @@ steps:
     out: [pileup_table]
 
   gatk_gather_tumor_pileup_summaries:
-    label: GATK merge tumor pileup tables
     run: ../tools/gatk_gatherpileupsummaries.cwl
     in:
       input_tables: gatk_get_tumor_pileup_summaries/pileup_table
@@ -98,7 +80,6 @@ steps:
     out: [merged_table]
 
   gatk_gather_normal_pileup_summaries:
-    label: GATK merge normal pileup tables
     run: ../tools/gatk_gatherpileupsummaries.cwl
     in:
       input_tables: gatk_get_normal_pileup_summaries/pileup_table

@@ -95,14 +95,21 @@ steps:
       input_normal_aligned: input_normal_aligned
       exac_common_vcf: exac_common_vcf
       output_basename: output_basename
-      f1r2_counts: mutect2/f1r2_counts
       getpileup_memory: getpileup_memory
-      learnorientation_memory: learnorientation_memory
-    out: [contamination_table, segmentation_table, f1r2_bias]
+    out: [contamination_table, segmentation_table]
+
+  gatk_learn_orientation_bias:
+    run: ../tools/gatk_learnorientationbias.cwl
+    in:
+      input_tgz: mutect2/f1r2_counts
+      output_basename: output_basename
+      tool_name:
+        valueFrom: ${return "mutect2"}
+      max_memory: learnorientation_memory
+    out: [f1r2_bias]
 
   merge_mutect2_vcf:
     run: ../tools/gatk_mergevcfs.cwl
-    label: Merge mutect2 vcf
     in:
       input_vcfs: mutect2/mutect2_vcf
       output_basename: output_basename
@@ -112,7 +119,6 @@ steps:
 
   merge_mutect2_stats:
     run: ../tools/gatk_mergemutectstats.cwl
-    label: Merge mutect2 stats
     in:
       input_stats: mutect2/mutect_stats
       output_basename: output_basename
@@ -127,13 +133,12 @@ steps:
       output_basename: output_basename
       contamination_table: mutect2_filter_support/contamination_table
       segmentation_table: mutect2_filter_support/segmentation_table
-      ob_priors: mutect2_filter_support/f1r2_bias
+      ob_priors: gatk_learn_orientation_bias/f1r2_bias
       max_memory: filtermutectcalls_memory
     out: [stats_table, filtered_vcf]
 
   gatk_selectvariants_mutect2:
     run: ../tools/gatk_selectvariants.cwl
-    label: GATK Select PASS
     in:
       input_vcf: filter_mutect2_vcf/filtered_vcf
       output_basename: output_basename
