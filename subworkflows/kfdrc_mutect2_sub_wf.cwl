@@ -1,4 +1,4 @@
-cwlVersion: v1.1
+cwlVersion: v1.2
 class: Workflow
 id: kfdrc_mutect2_sub_wf
 requirements:
@@ -53,6 +53,7 @@ outputs:
   mutect2_filtered_vcf: {type: 'File', outputSource: filter_mutect2_vcf/filtered_vcf}
   mutect2_protected_outputs: {type: 'File[]', outputSource: rename_protected/renamed_files}
   mutect2_public_outputs: {type: 'File[]', outputSource: rename_public/renamed_files}
+  mutect2_bam: {type: 'File?', outputSource: gatk_gathersortindexbams/output} 
 
 steps:
   mutect2:
@@ -97,6 +98,15 @@ steps:
       output_basename: output_basename
       getpileup_memory: getpileup_memory
     out: [contamination_table, segmentation_table]
+
+  gatk_gathersortindexbams:
+    run: ../tools/gatk_gathersortindexbams.cwl
+    when: $(inputs.input_bams.length > 0)
+    in:
+      reference: indexed_reference_fasta 
+      input_bams: mutect2/mutect2_bam 
+      output_basename: output_basename
+    out: [output]
 
   gatk_learn_orientation_bias:
     run: ../tools/gatk_learnorientationbias.cwl

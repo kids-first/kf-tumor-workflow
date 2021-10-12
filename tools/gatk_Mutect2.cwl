@@ -56,4 +56,4 @@ outputs:
     type: 'File?'
     outputBinding:
       glob: '*.bam'
-    secondaryFiles: [.bai]
+    secondaryFiles: [^.bai]

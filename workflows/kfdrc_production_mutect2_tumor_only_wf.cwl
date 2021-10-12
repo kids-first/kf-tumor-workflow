@@ -70,6 +70,7 @@ outputs:
   mutect2_prepass_vcf: { type: 'File', outputSource: run_mutect2/mutect2_filtered_vcf }
   mutect2_protected_outputs: { type: 'File[]', outputSource: run_mutect2/mutect2_protected_outputs }
   mutect2_public_outputs: { type: 'File[]', outputSource: run_mutect2/mutect2_public_outputs }
+  mutect2_bam: { type: 'File?', outputSource: run_mutect2/mutect2_bam }
 
 steps:
   choose_defaults:
@@ -169,7 +170,7 @@ steps:
       make_bamout: make_bamout
       run_orientation_bias_mixture_model_filter: run_orientation_bias_mixture_model_filter
     out:
-      [mutect2_filtered_stats, mutect2_filtered_vcf, mutect2_protected_outputs, mutect2_public_outputs]
+      [mutect2_filtered_stats, mutect2_filtered_vcf, mutect2_protected_outputs, mutect2_public_outputs, mutect2_bam]
 
 $namespaces:
   sbg: https://sevenbridges.com
