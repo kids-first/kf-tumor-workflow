@@ -5,6 +5,7 @@ requirements:
   - class: ScatterFeatureRequirement
   - class: MultipleInputFeatureRequirement
   - class: SubworkflowFeatureRequirement
+  - class: InlineJavascriptRequirement
 inputs:
   # Required
   reference_fasta: { type: 'File' }
@@ -31,6 +32,9 @@ inputs:
   mutect2_extra_args: {type: 'string?'}
   make_bamout: {type: 'boolean?'}
   run_orientation_bias_mixture_model_filter: {type: 'boolean?'}
+
+  # ArtifactFilter
+  bwa_mem_index_image: {type: 'File?'}
 
   # Optional with One Default
   select_vars_mode: { type: ['null', { type: enum, name: select_vars_mode, symbols: ["gatk", "grep"] }], default: "gatk", doc: "Choose 'gatk' for SelectVariants tool, or 'grep' for grep expression" }
@@ -169,6 +173,7 @@ steps:
       mutect2_extra_args: mutect2_extra_args
       make_bamout: make_bamout
       run_orientation_bias_mixture_model_filter: run_orientation_bias_mixture_model_filter
+      bwa_mem_index_image: bwa_mem_index_image
     out:
       [mutect2_filtered_stats, mutect2_filtered_vcf, mutect2_protected_outputs, mutect2_public_outputs, mutect2_bam]
 

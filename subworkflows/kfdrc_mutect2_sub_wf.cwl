@@ -5,6 +5,7 @@ requirements:
   - class: ScatterFeatureRequirement
   - class: MultipleInputFeatureRequirement
   - class: SubworkflowFeatureRequirement
+  - class: InlineJavascriptRequirement
 
 inputs:
   indexed_reference_fasta: {type: 'File', secondaryFiles: [.fai, ^.dict]}
@@ -18,9 +19,9 @@ inputs:
 
   input_tumor_name: string
   input_normal_name: { type: 'string?' }
-  exome_flag: {type: ['null', string], doc: "set to 'Y' for exome mode"}
+  exome_flag: {type: 'string?', doc: "set to 'Y' for exome mode"}
   vep_cache: {type: 'File', doc: "tar gzipped cache from ensembl/local converted cache"}
-  vep_ref_build: {type: ['null', string], doc: "Genome ref build used, should line up with cache.", default: "GRCh38" }
+  vep_ref_build: {type: 'string?', doc: "Genome ref build used, should line up with cache.", default: "GRCh38" }
   output_basename: string
   getpileup_memory: {type: 'int?'}
   learnorientation_memory: {type: 'int?'}
@@ -48,9 +49,11 @@ inputs:
   make_bamout: {type: 'boolean?'}
   run_orientation_bias_mixture_model_filter: {type: 'boolean?'}
 
+  bwa_mem_index_image: {type: 'File?'}
+
 outputs:
   mutect2_filtered_stats: {type: 'File', outputSource: filter_mutect2_vcf/stats_table}
-  mutect2_filtered_vcf: {type: 'File', outputSource: filter_mutect2_vcf/filtered_vcf}
+  mutect2_filtered_vcf: {type: 'File', outputSource: [gatk_filteralignmentartifacts/output,filter_mutect2_vcf/filtered_vcf], pickValue: first_non_null}
   mutect2_protected_outputs: {type: 'File[]', outputSource: rename_protected/renamed_files}
   mutect2_public_outputs: {type: 'File[]', outputSource: rename_public/renamed_files}
   mutect2_bam: {type: 'File?', outputSource: gatk_gathersortindexbams/output} 
@@ -101,10 +104,11 @@ steps:
 
   gatk_gathersortindexbams:
     run: ../tools/gatk_gathersortindexbams.cwl
-    when: $(inputs.input_bams.length > 0)
+    when: '$(inputs.enable_tool ? true : false)'
     in:
       reference: indexed_reference_fasta 
       input_bams: mutect2/mutect2_bam 
+      enable_tool: make_bamout
       output_basename: output_basename
     out: [output]
 
@@ -147,10 +151,25 @@ steps:
       max_memory: filtermutectcalls_memory
     out: [stats_table, filtered_vcf]
 
+  gatk_filteralignmentartifacts:
+    run: ../tools/gatk_filteralignmentartifacts.cwl
+    when: $(inputs.bwa_mem_index_image != null)
+    in:
+      input_vcf: filter_mutect2_vcf/filtered_vcf
+      reference: indexed_reference_fasta 
+      input_reads: input_tumor_aligned
+      bwa_mem_index_image: bwa_mem_index_image
+      output_vcf_name:
+        source: output_basename
+        valueFrom: $(self).mutect2_filtered.artifact_filtered.vcf.gz
+    out: [output]
+
   gatk_selectvariants_mutect2:
     run: ../tools/gatk_selectvariants.cwl
     in:
-      input_vcf: filter_mutect2_vcf/filtered_vcf
+      input_vcf:
+        source: [gatk_filteralignmentartifacts/output, filter_mutect2_vcf/filtered_vcf]
+        pickValue: first_non_null
       output_basename: output_basename
       tool_name: tool_name
       mode: select_vars_mode

@@ -35,6 +35,7 @@ inputs:
   reference: { type: 'File', secondaryFiles: [^.dict, .fai], doc: "Refernce fasta, with fai and dict indices" }
   input_bams: { type: 'File[]', secondaryFiles: [{ pattern: ".bai", required: false },{ pattern: "^.bai", required: false }], doc: "List of BAM files to merge then sort and index." }
   output_basename: { type: 'string?', doc: "Basename for output BAM" }
+  enable_tool: { type: 'boolean?', doc: "Should this tool be run? This option may only be used in a workflow." }
 
   cores: { type: 'int?', default: 1, doc: "Minimum reserved number of CPU cores for the task." }
   max_memory: { type: 'int?', default: 2, doc: "GB of RAM to allocate to the task." }
