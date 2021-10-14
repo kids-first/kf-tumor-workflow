@@ -5,7 +5,7 @@ requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.1.1.0'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.2.0.0R'
   - class: ResourceRequirement
     ramMin: $(inputs.max_memory * 1000)
     coresMin: $(inputs.cores)

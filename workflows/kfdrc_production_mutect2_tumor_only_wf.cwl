@@ -18,7 +18,7 @@ inputs:
   vep_cache: { type: 'File', doc: "tar gzipped cache from ensembl/local converted cache" }
   mutect2_af_only_gnomad_vcf: { type: 'File' }
   mutect2_af_only_gnomad_tbi: { type: 'File?', doc: "Tabix index for mutect2_af_only_gnomad_vcf" }
-  mutect2_exac_common_vcf: { type: 'File' }
+  mutect2_exac_common_vcf: { type: 'File?', doc: "Exac Common VCF used for calculating contamination" }
   mutect2_exac_common_tbi: { type: 'File?', doc: "Tabix index for mutect2_exac_common_vcf" }
   output_basename: { type: 'string', doc: "String value to use as basename for outputs" }
   wgs_or_wxs: { type: { type: enum, name: wgs_or_wxs, symbols: ["WGS", "WXS"] }, doc: "Select if this run is WGS or WXS" }
@@ -32,6 +32,7 @@ inputs:
   mutect2_extra_args: {type: 'string?'}
   make_bamout: {type: 'boolean?'}
   run_orientation_bias_mixture_model_filter: {type: 'boolean?'}
+  run_annotation: {type: 'boolean?' }
 
   # ArtifactFilter
   bwa_mem_index_image: {type: 'File?'}
@@ -59,21 +60,21 @@ inputs:
   retain_info: {type: 'string?', doc: "csv string with INFO fields that you want to keep", default: "MBQ,TLOD,HotSpotAllele"}
   retain_fmt: {type: 'string?', doc: "csv string with FORMAT fields that you want to keep"}
   add_common_fields: {type: 'boolean?', doc: "Set to true if input is a strelka2 vcf that hasn't had common fields added", default: false}
-  bcftools_annot_columns: {type: 'string', doc: "csv string of columns from annotation to port into the input vcf, i.e INFO/AF", default: "INFO/AF"}
-  bcftools_annot_vcf: {type: 'File', doc: "bgzipped annotation vcf file", "sbg:suggestedValue": {class: File, path: 5f50018fe4b054958bc8d2e3,
+  bcftools_annot_columns: {type: 'string?', doc: "csv string of columns from annotation to port into the input vcf, i.e INFO/AF", default: "INFO/AF"}
+  bcftools_annot_vcf: {type: 'File?', doc: "bgzipped annotation vcf file", "sbg:suggestedValue": {class: File, path: 5f50018fe4b054958bc8d2e3,
       name: af-only-gnomad.hg38.vcf.gz} }
-  bcftools_annot_vcf_index: {type: 'File', doc: "index of bcftools_annot_vcf", "sbg:suggestedValue": {class: File, path: 5f50018fe4b054958bc8d2e5,
+  bcftools_annot_vcf_index: {type: 'File?', doc: "index of bcftools_annot_vcf", "sbg:suggestedValue": {class: File, path: 5f50018fe4b054958bc8d2e5,
       name: af-only-gnomad.hg38.vcf.gz.tbi}}
   bcftools_public_filter: {type: 'string?', doc: "Will hard filter final result to create a public version", default: FILTER="PASS"|INFO/HotSpotAllele=1}
-  gatk_filter_name: {type: 'string[]', doc: "Array of names for each filter tag to add, recommend: [\"NORM_DP_LOW\", \"GNOMAD_AF_HIGH\"]"}
-  gatk_filter_expression: {type: 'string[]', doc: "Array of filter expressions to establish criteria to tag variants with. See https://gatk.broadinstitute.org/hc/en-us/articles/360036730071-VariantFiltration, recommend: \"vc.getGenotype('\" + inputs.input_normal_name + \"').getDP() <= 7\"), \"AF > 0.001\"]"}
+  gatk_filter_name: {type: 'string[]?', doc: "Array of names for each filter tag to add, recommend: [\"NORM_DP_LOW\", \"GNOMAD_AF_HIGH\"]"}
+  gatk_filter_expression: {type: 'string[]?', doc: "Array of filter expressions to establish criteria to tag variants with. See https://gatk.broadinstitute.org/hc/en-us/articles/360036730071-VariantFiltration, recommend: \"vc.getGenotype('\" + inputs.input_normal_name + \"').getDP() <= 7\"), \"AF > 0.001\"]"}
   disable_hotspot_annotation: { type: 'boolean?', doc: "Disable Hotspot Annotation and skip this task.", default: false }
   maf_center: {type: 'string?', doc: "Sequencing center of variant called", default: "."}
 
 outputs:
   mutect2_prepass_vcf: { type: 'File', outputSource: run_mutect2/mutect2_filtered_vcf }
-  mutect2_protected_outputs: { type: 'File[]', outputSource: run_mutect2/mutect2_protected_outputs }
-  mutect2_public_outputs: { type: 'File[]', outputSource: run_mutect2/mutect2_public_outputs }
+  mutect2_protected_outputs: { type: 'File[]?', outputSource: run_mutect2/mutect2_protected_outputs }
+  mutect2_public_outputs: { type: 'File[]?', outputSource: run_mutect2/mutect2_public_outputs }
   mutect2_bam: { type: 'File?', outputSource: run_mutect2/mutect2_bam }
 
 steps:
@@ -174,6 +175,7 @@ steps:
       make_bamout: make_bamout
       run_orientation_bias_mixture_model_filter: run_orientation_bias_mixture_model_filter
       bwa_mem_index_image: bwa_mem_index_image
+      run_annotation: run_annotation
     out:
       [mutect2_filtered_stats, mutect2_filtered_vcf, mutect2_protected_outputs, mutect2_public_outputs, mutect2_bam]
 

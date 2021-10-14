@@ -25,6 +25,7 @@ arguments:
 inputs:
     input_files: {type: 'File[]', doc: "Files to rename"}
     rename_to: {type: 'string[]', doc: "List of new file names"}
+    enable_tool: {type: 'boolean?'}
 outputs:
   renamed_files:
     type: 'File[]'

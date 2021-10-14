@@ -28,6 +28,7 @@ inputs:
     inputBinding:
       position: 1
   tool_name: string
+  enable_tool: { type: 'boolean?', doc: "Should this tool be run? This option may only be used in a workflow." }
   output_basename: string
   max_memory: {type: 'int?', default: 4, doc: "Maximum memory in GB for GATK LearnReadOrientationModel"}
 outputs:

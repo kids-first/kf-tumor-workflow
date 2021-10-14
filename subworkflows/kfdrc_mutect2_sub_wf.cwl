@@ -12,7 +12,7 @@ inputs:
   reference_dict: File
   bed_invtl_split: {type: 'File[]', doc: "Bed file intervals passed on from and outside pre-processing step"}
   af_only_gnomad_vcf: {type: 'File', secondaryFiles: ['.tbi']}
-  exac_common_vcf: {type: 'File', secondaryFiles: ['.tbi']}
+  exac_common_vcf: {type: 'File?', secondaryFiles: ['.tbi']}
 
   input_tumor_aligned: { type: 'File', secondaryFiles: [{ pattern: ".bai", required: false },{ pattern: "^.bai", required: false },{ pattern: ".crai", required: false },{ pattern: "^.crai", required: false }]}
   input_normal_aligned: { type: 'File?', secondaryFiles: [{ pattern: ".bai", required: false },{ pattern: "^.bai", required: false },{ pattern: ".crai", required: false },{ pattern: "^.crai", required: false }]}
@@ -35,11 +35,11 @@ inputs:
   retain_info: {type: 'string?', doc: "csv string with INFO fields that you want to keep", default: "MBQ,TLOD,HotSpotAllele"}
   retain_fmt: {type: 'string?', doc: "csv string with FORMAT fields that you want to keep"}
   add_common_fields: {type: 'boolean?', doc: "Set to true if input is a strelka2 vcf that hasn't had common fields added", default: false}
-  bcftools_annot_columns: {type: 'string', doc: "csv string of columns from annotation to port into the input vcf, i.e INFO/AF", default: "INFO/AF"}
-  bcftools_annot_vcf: {type: 'File', secondaryFiles: ['.tbi'], doc: "bgzipped annotation vcf file"}
+  bcftools_annot_columns: {type: 'string?', doc: "csv string of columns from annotation to port into the input vcf, i.e INFO/AF", default: "INFO/AF"}
+  bcftools_annot_vcf: {type: 'File?', secondaryFiles: ['.tbi'], doc: "bgzipped annotation vcf file"}
   bcftools_public_filter: {type: 'string?', doc: "Will hard filter final result to create a public version", default: FILTER="PASS"|INFO/HotSpotAllele=1}
-  gatk_filter_name: {type: 'string[]', doc: "Array of names for each filter tag to add, recommend: [\"NORM_DP_LOW\", \"GNOMAD_AF_HIGH\"]"}
-  gatk_filter_expression: {type: 'string[]', doc: "Array of filter expressions to establish criteria to tag variants with. See https://gatk.broadinstitute.org/hc/en-us/articles/360036730071-VariantFiltration, recommend: \"vc.getGenotype('\" + inputs.input_normal_name + \"').getDP() <= 7\"), \"AF > 0.001\"]"}
+  gatk_filter_name: {type: 'string[]?', doc: "Array of names for each filter tag to add, recommend: [\"NORM_DP_LOW\", \"GNOMAD_AF_HIGH\"]"}
+  gatk_filter_expression: {type: 'string[]?', doc: "Array of filter expressions to establish criteria to tag variants with. See https://gatk.broadinstitute.org/hc/en-us/articles/360036730071-VariantFiltration, recommend: \"vc.getGenotype('\" + inputs.input_normal_name + \"').getDP() <= 7\"), \"AF > 0.001\"]"}
   disable_hotspot_annotation: { type: 'boolean?', doc: "Disable Hotspot Annotation and skip this task.", default: false }
   maf_center: {type: 'string?', doc: "Sequencing center of variant called", default: "."}
 
@@ -48,15 +48,18 @@ inputs:
   mutect2_extra_args: {type: 'string?'}
   make_bamout: {type: 'boolean?'}
   run_orientation_bias_mixture_model_filter: {type: 'boolean?'}
+  run_annotation: {type: 'boolean?' }
+
+  filtermutectcalls_extra_args: {type: 'string?'}
 
   bwa_mem_index_image: {type: 'File?'}
 
 outputs:
   mutect2_filtered_stats: {type: 'File', outputSource: filter_mutect2_vcf/stats_table}
   mutect2_filtered_vcf: {type: 'File', outputSource: [gatk_filteralignmentartifacts/output,filter_mutect2_vcf/filtered_vcf], pickValue: first_non_null}
-  mutect2_protected_outputs: {type: 'File[]', outputSource: rename_protected/renamed_files}
-  mutect2_public_outputs: {type: 'File[]', outputSource: rename_public/renamed_files}
-  mutect2_bam: {type: 'File?', outputSource: gatk_gathersortindexbams/output} 
+  mutect2_protected_outputs: {type: 'File[]?', outputSource: rename_protected/renamed_files}
+  mutect2_public_outputs: {type: 'File[]?', outputSource: rename_public/renamed_files}
+  mutect2_bam: {type: 'File?', outputSource: gatk_gathersortindexbams/output}
 
 steps:
   mutect2:
@@ -74,7 +77,7 @@ steps:
       germline_resource_vcf: af_only_gnomad_vcf
       panel_of_normals: panel_of_normals
       alleles: alleles
-      output_vcf_name:  { valueFrom: $(inputs.input_tumor_aligned.nameroot).$(inputs.interval_list.nameroot).Mutect2.vcf.gz }
+      output_vcf_name: { valueFrom: $(inputs.input_tumor_aligned.nameroot).$(inputs.interval_list.nameroot).Mutect2.vcf.gz }
       output_f1r2_name:
         source: run_orientation_bias_mixture_model_filter
         valueFrom: '$(self ? inputs.input_tumor_aligned.nameroot+"."+inputs.interval_list.nameroot+".f1r2_counts.tar.gz" : null)'
@@ -91,6 +94,7 @@ steps:
 
   mutect2_filter_support:
     run: ../subworkflows/kfdrc_mutect2_filter_support_subwf.cwl
+    when: $(inputs.exac_common_vcf != null)
     in:
       indexed_reference_fasta: indexed_reference_fasta
       reference_dict: reference_dict
@@ -98,6 +102,7 @@ steps:
       input_tumor_aligned: input_tumor_aligned
       input_normal_aligned: input_normal_aligned
       exac_common_vcf: exac_common_vcf
+      tool_name: tool_name
       output_basename: output_basename
       getpileup_memory: getpileup_memory
     out: [contamination_table, segmentation_table]
@@ -106,19 +111,20 @@ steps:
     run: ../tools/gatk_gathersortindexbams.cwl
     when: '$(inputs.enable_tool ? true : false)'
     in:
-      reference: indexed_reference_fasta 
-      input_bams: mutect2/mutect2_bam 
+      reference: indexed_reference_fasta
+      input_bams: mutect2/mutect2_bam
       enable_tool: make_bamout
       output_basename: output_basename
     out: [output]
 
   gatk_learn_orientation_bias:
     run: ../tools/gatk_learnorientationbias.cwl
+    when: '$(inputs.enable_tool ? true : false)'
     in:
       input_tgz: mutect2/f1r2_counts
+      tool_name: tool_name
+      enable_tool: run_orientation_bias_mixture_model_filter
       output_basename: output_basename
-      tool_name:
-        valueFrom: ${return "mutect2"}
       max_memory: learnorientation_memory
     out: [f1r2_bias]
 
@@ -141,13 +147,19 @@ steps:
   filter_mutect2_vcf:
     run: ../tools/gatk_filtermutectcalls.cwl
     in:
+      output_vcf_name:
+        source: output_basename
+        valueFrom: $(self).mutect2_filtered.vcf.gz
+      output_filtering_stats:
+        source: output_basename
+        valueFrom: $(self).mutect2_filtered.txt
+      reference: indexed_reference_fasta
       mutect_vcf: merge_mutect2_vcf/merged_vcf
       mutect_stats: merge_mutect2_stats/merged_stats
-      reference: indexed_reference_fasta
-      output_basename: output_basename
+      ob_priors: gatk_learn_orientation_bias/f1r2_bias
       contamination_table: mutect2_filter_support/contamination_table
       segmentation_table: mutect2_filter_support/segmentation_table
-      ob_priors: gatk_learn_orientation_bias/f1r2_bias
+      extra_args: filtermutectcalls_extra_args
       max_memory: filtermutectcalls_memory
     out: [stats_table, filtered_vcf]
 
@@ -156,7 +168,7 @@ steps:
     when: $(inputs.bwa_mem_index_image != null)
     in:
       input_vcf: filter_mutect2_vcf/filtered_vcf
-      reference: indexed_reference_fasta 
+      reference: indexed_reference_fasta
       input_reads: input_tumor_aligned
       bwa_mem_index_image: bwa_mem_index_image
       output_vcf_name:
@@ -166,6 +178,7 @@ steps:
 
   gatk_selectvariants_mutect2:
     run: ../tools/gatk_selectvariants.cwl
+    when: '$(inputs.enable_tool ? true : false)'
     in:
       input_vcf:
         source: [gatk_filteralignmentartifacts/output, filter_mutect2_vcf/filtered_vcf]
@@ -173,10 +186,12 @@ steps:
       output_basename: output_basename
       tool_name: tool_name
       mode: select_vars_mode
+      enable_tool: run_annotation 
     out: [pass_vcf]
 
   annotate:
     run: ../subworkflows/kfdrc_annot_vcf_sub_wf.cwl
+    when: '$(inputs.enable_workflow ? true : false)'
     in:
       indexed_reference_fasta: indexed_reference_fasta
       input_vcf: gatk_selectvariants_mutect2/pass_vcf
@@ -199,10 +214,12 @@ steps:
       maf_center: maf_center
       output_basename: output_basename
       tool_name: tool_name
+      enable_workflow: run_annotation
     out: [annotated_protected_vcf, annotated_protected_maf, annotated_public_vcf, annotated_public_maf]
 
   rename_protected:
     run: ../tools/generic_rename_outputs.cwl
+    when: '$(inputs.enable_tool ? true : false)'
     in:
       input_files:
         source: [annotate/annotated_protected_vcf, annotate/annotated_protected_maf]
@@ -213,10 +230,12 @@ steps:
         var pro_tbi=self[0] + '.' + self[1] + '.norm.annot.protected.vcf.gz.tbi'; \
         var pro_maf=self[0] + '.' + self[1] + '.norm.annot.protected.maf'; \
         return [pro_vcf, pro_tbi, pro_maf];}"
+      enable_tool: run_annotation 
     out: [renamed_files]
 
   rename_public:
     run: ../tools/generic_rename_outputs.cwl
+    when: '$(inputs.enable_tool ? true : false)'
     in:
       input_files:
         source: [annotate/annotated_public_vcf, annotate/annotated_public_maf]
@@ -227,6 +246,7 @@ steps:
         var pub_tbi=self[0] + '.' + self[1] + '.norm.annot.public.vcf.gz.tbi'; \
         var pub_maf=self[0] + '.' + self[1] + '.norm.annot.public.maf'; \
         return [pub_vcf, pub_tbi, pub_maf];}"
+      enable_tool: run_annotation 
     out: [renamed_files]
 
 $namespaces:

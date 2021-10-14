@@ -28,6 +28,7 @@ inputs:
   retain_info: {type: 'string?', doc: "csv string with INFO fields that you want to keep, i.e. for consensus `MQ,MQ0,CAL,Hotspot`"}
   retain_fmt: {type: 'string?', doc: "csv string with FORMAT fields that you want to keep"}
   maf_center: {type: 'string?', doc: "Sequencing center of variant called", default: "."}
+  enable_workflow: {type: 'boolean?'}
 
 outputs:
   annotated_protected_vcf: {type: 'File', outputSource: hotspots_annotation/hotspots_vcf}

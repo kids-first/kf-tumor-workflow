@@ -38,6 +38,7 @@ inputs:
   output_basename: string
   tool_name: string
   mode: {type: ['null', {type: enum, name: select_vars_mode, symbols: ["gatk", "grep"]}], doc: "Choose 'gatk' for SelectVariants tool, or 'grep' for grep expression", default: "gatk"}
+  enable_tool: {type: 'boolean?'}
   
 outputs:  
   pass_vcf:
