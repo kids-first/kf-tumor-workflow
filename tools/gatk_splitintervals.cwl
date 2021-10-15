@@ -35,7 +35,7 @@ inputs:
   cores: { type: 'int?', default: 2, doc: "Minimum reserved number of CPU cores for the task." }
   max_memory: { type: 'int?', default: 4, doc: "GB of RAM to allocate to the task." }
 outputs:
-  split_intervals:
+  output:
     type: 'File[]'
     outputBinding:
       glob: $(inputs.output_directory)/*.interval_list
