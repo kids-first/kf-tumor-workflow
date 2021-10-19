@@ -21,7 +21,7 @@ inputs:
 
   output_name: { type: 'string', inputBinding: { prefix: "--output", position: 2 }, doc: "Name of vcf.gz file into which variants should be written" }
 
-  extra_args: { type: 'string?', inputBinding: { position: 3 }, doc: "Any additional arguments for this tool. See GATK Documentation for complete list of options. Example input: --interval-merging-rule OVERLAPPING_ONLY" }
+  extra_args: { type: 'string?', inputBinding: { position: 3, shellQuote: false }, doc: "Any additional arguments for this tool. See GATK Documentation for complete list of options. Example input: --interval-merging-rule OVERLAPPING_ONLY" }
 
   cores: { type: 'int?', default: 1, doc: "Minimum reserved number of CPU cores for the task." }
   max_memory: { type: 'int?', default: 2, doc: "GB of RAM to allocate to the task." }

@@ -73,7 +73,7 @@ inputs:
 
 outputs:
   mutect2_filtered_stats: { type: 'File', outputSource: filter_mutect2_vcf/stats_table }
-  mutect2_filtered_vcf: { type: 'File', outputSource: [gatk_filteralignmentartifacts/output,filter_mutect2_vcf/filtered_vcf], pickValue: first_non_null }
+  mutect2_filtered_vcf: { type: 'File', outputSource: pickvalue_workaround/output }
   mutect2_protected_outputs: { type: 'File[]?', outputSource: rename_protected/renamed_files }
   mutect2_public_outputs: { type: 'File[]?', outputSource: rename_public/renamed_files }
   mutect2_bam: { type: 'File?', outputSource: gatk_gathersortindexbams/output }
@@ -193,6 +193,14 @@ steps:
         valueFrom: $(self).mutect2_filtered.artifact_filtered.vcf.gz
       cores: filteralignmentartifacts_cores
       max_memory: filteralignmentartifacts_memory
+    out: [output]
+
+  pickvalue_workaround:
+    run: ../tools/expression_pickvalue_workaround.cwl
+    in:
+      input_file:
+        source: [gatk_filteralignmentartifacts/output, filter_mutect2_vcf/filtered_vcf]
+        pickValue: first_non_null
     out: [output]
 
   gatk_selectvariants_mutect2:

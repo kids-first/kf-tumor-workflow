@@ -33,7 +33,7 @@ inputs:
 
   disable_read_filter: { type: ['null', { type: array, items: string, inputBinding: { prefix: "--disable-read-filter" }}], inputBinding: { position: 2 }, doc: "Read filters to be disabled before analysis" }
   disable_adaptive_pruning: { type: 'boolean?', inputBinding: { prefix: "--disable-adaptive-pruning", position: 2 }, doc: "Disable the adaptive algorithm for pruning paths in the graph. A single edge multiplicity cutoff for pruning doesn't work in samples with variable depths, for example exomes and RNA." }
-  extra_args: { type: 'string?', inputBinding: { position: 3 }, doc: "Any additional arguments for this tool. See GATK Documentation for complete list of options. Example input: --interval-merging-rule OVERLAPPING_ONLY" }
+  extra_args: { type: 'string?', inputBinding: { position: 3, shellQuote: false }, doc: "Any additional arguments for this tool. See GATK Documentation for complete list of options. Example input: --interval-merging-rule OVERLAPPING_ONLY" }
 
   cores: { type: 'int?', default: 3, doc: "Minimum reserved number of CPU cores for the task." }
   max_memory: { type: 'int?', default: 6, doc: "GB of RAM to allocate to the task." }

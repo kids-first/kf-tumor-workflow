@@ -14,7 +14,7 @@ requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.1.1.0'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.2.0.0R'
   - class: ResourceRequirement
     ramMin: $(inputs.ram * 1000)
     coresMin: $(inputs.cores)
@@ -31,7 +31,7 @@ inputs:
   scatter_ct: {type: 'int?', default: 50, inputBinding: {prefix: "--scatter-count", position: 2}, doc: "number of output interval files to split into"}
   reference_fasta: {type: 'File', secondaryFiles: [{pattern: ".fai", required: true},{pattern: "^.dict", required: true}], inputBinding: {prefix: "--reference", position: 2}, doc: "Reference sequence fasta and index"}
   output_directory: {type: 'string?', default: 'intervals', inputBinding: {prefix: "--output", position: 2}, doc: "The directory into which to write the scattered interval sub-directories."}
-  extra_args: {type: 'string?', inputBinding: {position: 3}, doc: "Any additional arguments for this tool. See GATK Documentation for complete list of options. Example input: --interval-merging-rule OVERLAPPING_ONLY"}
+  extra_args: {type: 'string?', inputBinding: {position: 3, shellQuote: false}, doc: "Any additional arguments for this tool. See GATK Documentation for complete list of options. Example input: --interval-merging-rule OVERLAPPING_ONLY"}
   cores: { type: 'int?', default: 2, doc: "Minimum reserved number of CPU cores for the task." }
   max_memory: { type: 'int?', default: 4, doc: "GB of RAM to allocate to the task." }
 outputs:

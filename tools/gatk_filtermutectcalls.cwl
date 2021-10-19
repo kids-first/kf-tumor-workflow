@@ -27,7 +27,7 @@ inputs:
   contamination_table: { type: 'File?', inputBinding: { prefix: "--contamination-table", position: 2 }, doc: "Tables containing contamination information." }
   segmentation_table: { type: 'File?', inputBinding: { prefix: "--tumor-segmentation", position: 2 }, doc: "Tables containing tumor segments' minor allele fractions for germline hets emitted by CalculateContamination" } 
 
-  extra_args: { type: 'string?', inputBinding: { position: 3 }, doc: "Any additional arguments for this tool. See GATK Documentation for complete list of options. Example input: --interval-merging-rule OVERLAPPING_ONLY" }
+  extra_args: { type: 'string?', inputBinding: { position: 3, shellQuote: false }, doc: "Any additional arguments for this tool. See GATK Documentation for complete list of options. Example input: --interval-merging-rule OVERLAPPING_ONLY" }
 
   cores: {type: 'int?', default: 2}
   max_memory: {type: 'int?', default: 4, doc: "GB of memory to allocate to the task"}
