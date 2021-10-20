@@ -21,7 +21,7 @@ arguments:
 
 inputs:
   input_vcf: { type: 'File?', inputBinding: { prefix: "--variant", position: 2 }, secondaryFiles: [{ pattern: ".tbi", required: false}], doc: "A VCF file containing variants." }
-  input_genomicsdb: { type: 'Directory?', inputBinding: { prefix: "--variant gendb:/", separate: false, shellQuote: false, position: 2 }, doc: "GenomicsDB containing variants." }
+  input_genomicsdb: { type: 'Directory?', inputBinding: { prefix: "--variant gendb://", separate: false, shellQuote: false, position: 2 }, doc: "GenomicsDB containing variants." }
   output_filename: { type: 'string', inputBinding: { prefix: "--output", position: 2 }, doc: "Output file with only the sample name in it." }
   reference_fasta: { type: 'File', secondaryFiles: [{ pattern: ".fai", required: true },{ pattern: "^.dict", required: true }], inputBinding: { prefix: "--reference", position: 2 }, doc: "Reference sequence fasta and index" }
   germline_resource: { type: 'File', secondaryFiles: ['.tbi'], inputBinding: {prefix: "--germline-resource", position: 2 }, doc: "Population vcf of germline sequencing containing allele fractions." }

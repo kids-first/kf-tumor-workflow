@@ -30,4 +30,4 @@ outputs:
   output:
     type: File
     outputBinding:
-      glob: $(inputs.output_name) 
+      glob: $(inputs.output_name)

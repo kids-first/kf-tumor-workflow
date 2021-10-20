@@ -19,7 +19,7 @@ arguments:
       /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" GatherBamFiles
       -I $(inputs.input_bams.map(function(e){return e.path;}).join(" -I "))
       -O unsorted.out.bam
-      -R $(inputs.reference.path) 
+      -R $(inputs.reference.path)
 
       /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" SortSam
       -I unsorted.out.bam

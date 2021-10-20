@@ -14,7 +14,7 @@ arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" FilterAlignmentArtifacts 
+      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" FilterAlignmentArtifacts
 
 inputs:
   reference: { type: 'File', secondaryFiles: [^.dict, .fai], inputBinding: { prefix: "--reference", position: 2 }, doc: "Refernce fasta, with fai and dict indices" }

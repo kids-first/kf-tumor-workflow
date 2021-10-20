@@ -1,22 +1,21 @@
 cwlVersion: v1.0
 class: CommandLineTool
 id: gatk_mergemutectstats
-label: GATK Merge Stats
 requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
     dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.1.1.0'
   - class: ResourceRequirement
-    ramMin: 4000
-    coresMin: 2
-baseCommand: [/gatk, MergeMutectStats]
+    ramMin: $(inputs.max_memory * 1000)
+    coresMin: $(inputs.cores)
+baseCommand: []
 arguments:
   - position: 0
     shellQuote: false
     valueFrom: >-
-      --java-options "-Xmx3000m"
-      -O $(inputs.output_basename).Mutect2.merged.stats 
+      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" MergeMutectStats
+      -O $(inputs.output_basename).Mutect2.merged.stats
 
 inputs:
   input_stats:
@@ -28,6 +27,8 @@ inputs:
     inputBinding:
       position: 1
   output_basename: string
+  max_memory: { type: 'int?', default: 4, doc: "Maximum memory to allocate to this task" }
+  cores: { type: 'int?', default: 2, doc: "CPUs to allocate to this task" }
 outputs:
   merged_stats:
     type: File

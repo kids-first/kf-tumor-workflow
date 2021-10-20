@@ -87,7 +87,7 @@ steps:
     out: [bcftools_annotated_vcf]
 
   gatk_add_soft_filter:
-    run: ../tools/gatk_variant_filter.cwl
+    run: ../tools/gatk_variantfiltration.cwl
     in:
       input_vcf: bcftools_gnomad_annotate/bcftools_annotated_vcf
       reference: indexed_reference_fasta

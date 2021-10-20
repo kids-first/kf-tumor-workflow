@@ -12,10 +12,10 @@ requirements:
 baseCommand: ["/bin/bash", "-c"]
 arguments:
   - position: 1
-    shellQuote: false
+    shellQuote: true
     valueFrom: >-
       set -eo pipefail
-      
+
       ${
         if (inputs.interval_list == null) {
           return "echo No interval list exiting without input >&2 && exit 0;";
@@ -26,15 +26,15 @@ arguments:
             cmd = "LIST=" + inputs.interval_list.path + ";";
           }
           else{
-            cmd = "/gatk BedToIntervalList -I " + inputs.interval_list.path + " -O " + inputs.interval_list.nameroot 
-            + ".interval_list -SD " + inputs.reference_dict.path + "; LIST=" + inputs.interval_list.nameroot 
+            cmd = "/gatk BedToIntervalList -I " + inputs.interval_list.path + " -O " + inputs.interval_list.nameroot
+            + ".interval_list -SD " + inputs.reference_dict.path + "; LIST=" + inputs.interval_list.nameroot
             + ".interval_list;";
 
           }
           if (inputs.exome_flag == "Y"){
               cmd += "BANDS=0;";
             }
-            
+
           else{
             cmd += "BANDS=" + inputs.bands + ";";
           }

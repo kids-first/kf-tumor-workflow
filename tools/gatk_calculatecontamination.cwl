@@ -1,6 +1,6 @@
 cwlVersion: v1.0
 class: CommandLineTool
-id: gatk_calulcate_contamination
+id: gatk_calulcatecontamination
 requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
@@ -9,12 +9,12 @@ requirements:
   - class: ResourceRequirement
     ramMin: $(inputs.max_memory * 1000)
     coresMin: $(inputs.cores)
-baseCommand: [/gatk, CalculateContamination]
+baseCommand: []
 arguments:
   - position: 0
     shellQuote: false
     valueFrom: >-
-      --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m"
+      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" CalculateContamination
 
 inputs:
   tumor_pileup: { type: 'File', inputBinding: { prefix: "--input", position: 2 }, doc: "The input table from the tumor pileup" }

@@ -4,9 +4,9 @@ id: gatk_getsamplename
 doc: |
   Emit a single sample name from the bam header into an output file. The sample name
   is that in the read group (RG) sample (SM) field
-  
+
   Note: If the bam has zero or more than one sample names in the header, this tool
-  will error, by design. This tool has not been tested extensively. Most options 
+  will error, by design. This tool has not been tested extensively. Most options
   supported by the GATK are irrelevant for this tool.
 requirements:
   - class: ShellCommandRequirement

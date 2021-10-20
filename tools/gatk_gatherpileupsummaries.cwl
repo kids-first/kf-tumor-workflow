@@ -1,23 +1,22 @@
 cwlVersion: v1.0
 class: CommandLineTool
-id: gatk4_mergepileup
-label: GATK Merge Pileups
+id: gatk_gatherpileupsummaries
 requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
     dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.1.1.0'
   - class: ResourceRequirement
-    ramMin: 4000
-    coresMin: 2
-baseCommand: [/gatk, GatherPileupSummaries]
+    ramMin: $(inputs.max_memory * 1000)
+    coresMin: $(inputs.cores)
+baseCommand: []
 arguments:
   - position: 0
     shellQuote: false
     valueFrom: >-
-      --java-options "-Xmx3000m"
+      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" GatherPileupSummaries
       --sequence-dictionary $(inputs.reference_dict.path)
-      -O $(inputs.output_basename).$(inputs.tool_name).merged.pileup.table 
+      -O $(inputs.output_basename).$(inputs.tool_name).merged.pileup.table
 
 inputs:
   input_tables:
@@ -31,6 +30,8 @@ inputs:
   reference_dict: File
   tool_name: string
   output_basename: string
+  max_memory: { type: 'int?', default: 4, doc: "GB of memory to allocate ot this task" }
+  cores: { type: 'int?', default: 2, doc: "CPUs to allocate ot this task" }
 outputs:
   merged_table:
     type: File

@@ -1,21 +1,22 @@
 cwlVersion: v1.0
 class: CommandLineTool
-id: gatk_variantfilter_vcf
+id: gatk_variantfiltration
 doc: "Simple tool add a FILTER tag based on criteria"
 requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    ramMin: 8000
-    coresMin: 4
+    ramMin: $(inputs.max_memory * 1000)
+    coresMin: $(inputs.cores)
   - class: DockerRequirement
     dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.1.1.0'
 
-baseCommand: [/gatk, VariantFiltration]
+baseCommand: []
 arguments:
   - position: 0
     shellQuote: false
     valueFrom: >-
+      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" VariantFiltration
       -R $(inputs.reference.path)
       -V $(inputs.input_vcf.path)
       -O $(inputs.output_basename).$(inputs.tool_name).gatk.soft_filtered.vcf.gz
@@ -28,13 +29,14 @@ arguments:
       }
 
 inputs:
-    input_vcf: {type: 'File', secondaryFiles: ['.tbi']}
-    reference: {type: 'File', secondaryFiles: [^.dict, .fai]}
-    filter_name: {type: 'string[]', doc: "Array of names for each filter tag to add"}
-    filter_expression: {type: 'string[]', doc: "Array of filter expressions to establish criteria to tag variants with. See https://gatk.broadinstitute.org/hc/en-us/articles/360036730071-VariantFiltration for clues"}
-    threads: {type: 'int?', doc: "Number of compression/decompression threads", default: 4}
-    output_basename: string
-    tool_name: string
+  input_vcf: {type: 'File', secondaryFiles: ['.tbi']}
+  reference: {type: 'File', secondaryFiles: [^.dict, .fai]}
+  filter_name: {type: 'string[]', doc: "Array of names for each filter tag to add"}
+  filter_expression: {type: 'string[]', doc: "Array of filter expressions to establish criteria to tag variants with. See https://gatk.broadinstitute.org/hc/en-us/articles/360036730071-VariantFiltration for clues"}
+  output_basename: string
+  tool_name: string
+  max_memory: { type: 'int?', default: 8, doc: "Maximum memory in GB to allocate to this task" }
+  cores: { type: 'int?', default: 4, doc: "CPUs to allocate to this task" }
 
 outputs:
   gatk_soft_filtered_vcf:

@@ -1,7 +1,6 @@
 cwlVersion: v1.0
 class: CommandLineTool
-id: gatk4_mergevcfs
-label: GATK Merge VCF
+id: gatk_mergevcfs
 doc: "Merge input vcfs"
 requirements:
   - class: ShellCommandRequirement
@@ -9,14 +8,14 @@ requirements:
   - class: DockerRequirement
     dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.1.1.0'
   - class: ResourceRequirement
-    ramMin: 4000
-    coresMin: 2
-baseCommand: [/gatk, MergeVcfs]
+    ramMin: $(inputs.max_memory * 1000)
+    coresMin: $(inputs.cores)
+baseCommand: []
 arguments:
   - position: 0
     shellQuote: false
     valueFrom: >-
-      --java-options "-Xmx2000m"
+      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" MergeVcfs
       --TMP_DIR=./TMP
       --CREATE_INDEX=true
       --SEQUENCE_DICTIONARY=$(inputs.reference_dict.path)
@@ -27,7 +26,6 @@ arguments:
         }
         return cmd
       }
-      
 
 inputs:
   input_vcfs:
@@ -42,7 +40,9 @@ inputs:
   reference_dict: File
   tool_name: string
   output_basename: string
-  silent_flag: ['null', int]
+  silent_flag: { type: 'int?' }
+  max_memory: { type: 'int?', default: 4, doc: "Maximum memory in GB to allocate to this task" }
+  cores: { type: 'int?', default: 2, doc: "CPUs to allocate to this task" }
 outputs:
   merged_vcf:
     type: File

@@ -80,7 +80,7 @@ outputs:
 
 steps:
   mutect2:
-    run: ../tools/gatk_Mutect2.cwl
+    run: ../tools/gatk_mutect2.cwl
     hints:
       - class: 'sbg:AWSInstanceType'
         value: c5.9xlarge
@@ -135,7 +135,7 @@ steps:
     out: [output]
 
   gatk_learn_orientation_bias:
-    run: ../tools/gatk_learnorientationbias.cwl
+    run: ../tools/gatk_learnreadorientationmodel.cwl
     when: '$(inputs.enable_tool ? true : false)'
     in:
       input_tgz: mutect2/f1r2_counts
