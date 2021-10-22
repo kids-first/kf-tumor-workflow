@@ -32,6 +32,13 @@ doc: |
   - SortSam
   - BuildBamIndex
 
+  The assembled haplotypes and locally realigned reads will be written as BAM to
+  this file if requested. Really for debugging purposes only. Note that the output
+  here does not include uninformative reads so that not every input read is emitted
+  to the bam. Turning on this mode may result in serious performance cost for the
+  caller. It's really only appropriate to use in specific areas where you want to
+  better understand why the caller is making specific calls.
+
   ## Filter Alignment Artifacts
   __Requires `bwa_mem_index_image` input__
 
@@ -150,7 +157,8 @@ inputs:
   tool_name: {type: 'string?', doc: "Tool name for this workflow", default: "mutect2"}
   output_basename: {type: 'string', doc: "String value to use as basename for outputs"}
   make_bamout: {type: 'boolean?', default: false, doc: "Should Mutect2 create a BAM\
-      \ output?"}
+      \ output? Turning on this mode may result in serious performance cost for the\
+      \ caller."}
   run_orientation_bias_mixture_model_filter: {type: 'boolean?', default: true, doc: "Should\
       \ Orientation Bias Mixture Model Filter be applied to Mutect2 outputs?"}
   mutect2_extra_args: {type: 'string?', doc: "Any additional arguments for Mutect2.\
@@ -185,17 +193,17 @@ inputs:
   vep_ref_build: {type: 'string?', default: "GRCh38", doc: "Genome ref build used,\
       \ should line up with cache"}
   genomic_hotspots: {type: 'File[]?', doc: "Tab-delimited BED formatted file(s) containing\
-      \ hg38 genomic positions corresponding to hotspots", "sbg:suggestedValue": [{
-      class: File, path: 607713829360f10e3982a423, name: tert.bed}], "sbg:fileTypes": "BED,\
+      \ hg38 genomic positions corresponding to hotspots", "sbg:suggestedValue": {
+      class: File, path: 607713829360f10e3982a423, name: tert.bed}, "sbg:fileTypes": "BED,\
       \ TSV"}
   protein_snv_hotspots: {type: 'File[]?', doc: "Column-name-containing, tab-delimited\
       \ file(s) containing protein names and amino acid positions corresponding to\
-      \ hotspots", "sbg:suggestedValue": [{class: File, path: 607713829360f10e3982a426,
-      name: protein_snv_cancer_hotspots_v2.tsv}], "sbg:fileTypes": "BED, TSV"}
+      \ hotspots", "sbg:suggestedValue": {class: File, path: 607713829360f10e3982a426,
+      name: protein_snv_cancer_hotspots_v2.tsv}, "sbg:fileTypes": "BED, TSV"}
   protein_indel_hotspots: {type: 'File[]?', doc: "Column-name-containing, tab-delimited\
       \ file(s) containing protein names and amino acid position ranges corresponding\
-      \ to hotspots", "sbg:suggestedValue": [{class: File, path: 607713829360f10e3982a424,
-      name: protein_indel_cancer_hotspots_v2.tsv}], "sbg:fileTypes": "BED, TSV"}
+      \ to hotspots", "sbg:suggestedValue": {class: File, path: 607713829360f10e3982a424,
+      name: protein_indel_cancer_hotspots_v2.tsv}, "sbg:fileTypes": "BED, TSV"}
   retain_info: {type: 'string?', doc: "csv string with INFO fields that you want to\
       \ keep", default: "MBQ,TLOD,HotSpotAllele"}
   retain_fmt: {type: 'string?', doc: "csv string with FORMAT fields that you want\
@@ -234,10 +242,17 @@ inputs:
       \ GATK FilterAlignmentArtifacts (hard-capped)"}
 
 outputs:
-  mutect2_prepass_vcf: {type: 'File', outputSource: run_mutect2/mutect2_filtered_vcf}
-  mutect2_protected_outputs: {type: 'File[]?', outputSource: run_mutect2/mutect2_protected_outputs}
-  mutect2_public_outputs: {type: 'File[]?', outputSource: run_mutect2/mutect2_public_outputs}
-  mutect2_bam: {type: 'File?', outputSource: run_mutect2/mutect2_bam}
+  mutect2_prepass_vcf: {type: 'File', outputSource: run_mutect2/mutect2_filtered_vcf,
+    doc: "VCF with SNV, MNV, and INDEL variant calls."}
+  mutect2_protected_outputs: {type: 'File[]?', outputSource: run_mutect2/mutect2_protected_outputs,
+    doc: "Array of files containing MAF format of PASS hits, PASS VCF with annotation\
+      \ pipeline soft FILTER-added values, and VCF index"}
+  mutect2_public_outputs: {type: 'File[]?', outputSource: run_mutect2/mutect2_public_outputs,
+    doc: "Protected outputs, except MAF and VCF have had entries with soft FILTER\
+      \ values removed"}
+  mutect2_bam: {type: 'File?', outputSource: run_mutect2/mutect2_bam, doc: "BAM generated\
+      \ by Mutect2, if desired. The assembled haplotypes and locally realigned reads\
+      \ will be written as BAM. Really for debugging purposes only."}
 
 steps:
   choose_defaults:

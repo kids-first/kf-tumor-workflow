@@ -27,6 +27,13 @@ __Requires `make_bamout` set to `true`__
 - SortSam
 - BuildBamIndex
 
+The assembled haplotypes and locally realigned reads will be written as BAM to
+this file if requested. Really for debugging purposes only. Note that the output
+here does not include uninformative reads so that not every input read is emitted
+to the bam. Turning on this mode may result in serious performance cost for the
+caller. It's really only appropriate to use in specific areas where you want to
+better understand why the caller is making specific calls.
+
 ## Filter Alignment Artifacts
 __Requires `bwa_mem_index_image` input__
 
