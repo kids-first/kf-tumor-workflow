@@ -12,7 +12,7 @@ requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.1.1.0'
+    dockerPull: 'broadinstitute/gatk:4.2.2.0'
   - class: ResourceRequirement
     ramMin: $(inputs.max_memory * 1000)
     coresMin: $(inputs.cores)
@@ -22,7 +22,7 @@ arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" GetSampleName
+      gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" GetSampleName
 
 inputs:
   override_samplename: { type: 'string?', doc: "If the samplename is known ahead of time or different than the one in the header, provide it here. When used in a workflow, this value can be used to skip this task." }

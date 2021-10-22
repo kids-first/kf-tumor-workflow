@@ -9,14 +9,14 @@ requirements:
     ramMin: $(inputs.max_memory * 1000)
     coresMin: $(inputs.cores)
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.1.1.0'
+    dockerPull: 'broadinstitute/gatk:4.2.2.0'
 
 baseCommand: []
 arguments:
   - position: 0
     shellQuote: false
     valueFrom: >-
-      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" VariantFiltration
+      gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" VariantFiltration
       -R $(inputs.reference.path)
       -V $(inputs.input_vcf.path)
       -O $(inputs.output_basename).$(inputs.tool_name).gatk.soft_filtered.vcf.gz

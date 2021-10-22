@@ -5,7 +5,7 @@ requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.1.1.0'
+    dockerPull: 'broadinstitute/gatk:4.2.2.0'
   - class: ResourceRequirement
     ramMin: $(inputs.max_memory * 1000)
     coresMin: $(inputs.cores)
@@ -16,18 +16,18 @@ arguments:
     valueFrom: >-
       set -e
 
-      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" GatherBamFiles
+      gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" GatherBamFiles
       -I $(inputs.input_bams.map(function(e){return e.path;}).join(" -I "))
       -O unsorted.out.bam
       -R $(inputs.reference.path)
 
-      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" SortSam
+      gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" SortSam
       -I unsorted.out.bam
       -O $(inputs.output_basename).sorted.bam
       --SORT_ORDER coordinate
       -VALIDATION_STRINGENCY LENIENT
 
-      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" BuildBamIndex
+      gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" BuildBamIndex
       -I $(inputs.output_basename).sorted.bam
       -VALIDATION_STRINGENCY LENIENT
 

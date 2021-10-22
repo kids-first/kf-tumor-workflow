@@ -7,7 +7,7 @@ requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.1.1.0'
+    dockerPull: 'broadinstitute/gatk:4.2.2.0'
   - class: ResourceRequirement
     ramMin: $(inputs.max_memory * 1000)
     coresMin: $(inputs.cores)
@@ -17,7 +17,7 @@ arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" GenomicsDBImport
+      gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" GenomicsDBImport
 
 inputs:
   reference_fasta: { type: 'File', secondaryFiles: [{ pattern: ".fai", required: true },{ pattern: "^.dict", required: true }], inputBinding: { prefix: "--reference", position: 2 }, doc: "Reference sequence fasta and index" }
