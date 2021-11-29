@@ -6,7 +6,7 @@ requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.1.1.0'
+    dockerPull: 'broadinstitute/gatk:4.2.2.0'
   - class: ResourceRequirement
     ramMin: $(inputs.max_memory * 1000)
     coresMin: $(inputs.cores)
@@ -15,12 +15,12 @@ arguments:
   - position: 0
     shellQuote: false
     valueFrom: >-
-      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" MergeVcfs
-      --TMP_DIR=./TMP
-      --CREATE_INDEX=true
-      --SEQUENCE_DICTIONARY=$(inputs.reference_dict.path)
+      gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" MergeVcfs
+      --TMP_DIR ./TMP
+      --CREATE_INDEX true
+      --SEQUENCE_DICTIONARY $(inputs.reference_dict.path)
       ${
-        var cmd = "--OUTPUT=" + inputs.output_basename + "." + inputs.tool_name + ".merged.vcf.gz "
+        var cmd = "--OUTPUT " + inputs.output_basename + "." + inputs.tool_name + ".merged.vcf.gz "
         if (typeof inputs.silent_flag !== 'undefined' && inputs.silent_flag == 1){
           cmd += "--VALIDATION_STRINGENCY SILENT"
         }
