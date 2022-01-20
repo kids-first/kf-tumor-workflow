@@ -1,6 +1,6 @@
 cwlVersion: v1.0
 class: CommandLineTool
-id: gatk_mergemutectstats
+id: gatk_learnreadorientationmodel
 requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
@@ -14,23 +14,25 @@ arguments:
   - position: 0
     shellQuote: false
     valueFrom: >-
-      gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" MergeMutectStats
-      -O $(inputs.output_basename).Mutect2.merged.stats
+      gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" LearnReadOrientationModel
+      -O $(inputs.output_basename).$(inputs.tool_name).f1r2_bias.tar.gz
 
 inputs:
-  input_stats:
+  input_tgz:
     type:
       type: array
       items: File
       inputBinding:
-        prefix: --stats
+        prefix: -I
     inputBinding:
       position: 1
+  tool_name: string
+  enable_tool: { type: 'boolean?', doc: "Should this tool be run? This option may only be used in a workflow." }
   output_basename: string
-  max_memory: { type: 'int?', default: 4, doc: "Maximum memory to allocate to this task" }
+  max_memory: {type: 'int?', default: 4, doc: "Maximum memory in GB for GATK LearnReadOrientationModel"}
   cores: { type: 'int?', default: 2, doc: "CPUs to allocate to this task" }
 outputs:
-  merged_stats:
+  f1r2_bias:
     type: File
     outputBinding:
-      glob: '*.merged.stats'
+      glob: '*.f1r2_bias.tar.gz'

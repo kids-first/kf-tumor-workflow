@@ -1,6 +1,6 @@
 cwlVersion: v1.0
 class: CommandLineTool
-id: gatk_mergemutectstats
+id: gatk_gatherpileupsummaries
 requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
@@ -14,23 +14,26 @@ arguments:
   - position: 0
     shellQuote: false
     valueFrom: >-
-      gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" MergeMutectStats
-      -O $(inputs.output_basename).Mutect2.merged.stats
+      gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" GatherPileupSummaries
+      --sequence-dictionary $(inputs.reference_dict.path)
+      -O $(inputs.output_basename).$(inputs.tool_name).merged.pileup.table
 
 inputs:
-  input_stats:
+  input_tables:
     type:
       type: array
       items: File
       inputBinding:
-        prefix: --stats
+        prefix: -I
     inputBinding:
       position: 1
+  reference_dict: File
+  tool_name: string
   output_basename: string
-  max_memory: { type: 'int?', default: 4, doc: "Maximum memory to allocate to this task" }
-  cores: { type: 'int?', default: 2, doc: "CPUs to allocate to this task" }
+  max_memory: { type: 'int?', default: 4, doc: "GB of memory to allocate ot this task" }
+  cores: { type: 'int?', default: 2, doc: "CPUs to allocate ot this task" }
 outputs:
-  merged_stats:
+  merged_table:
     type: File
     outputBinding:
-      glob: '*.merged.stats'
+      glob: '*.merged.pileup.table'

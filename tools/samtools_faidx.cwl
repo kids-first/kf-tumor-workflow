@@ -2,7 +2,7 @@ cwlVersion: v1.0
 class: CommandLineTool
 id: samtools_faidx
 doc: |-
-  This tool takes an input fasta and optionally a input index for the input fasta.
+  This tool takes an input fasta and optionally an input index for the input fasta.
   If the index is not provided this tool will generate one.
   Finally the tool will return the input reference file with the index (generated or provided) as a secondaryFile.
 requirements:
