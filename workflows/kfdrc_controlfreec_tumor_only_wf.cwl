@@ -10,7 +10,7 @@ inputs:
   reference_fasta: { type: File }
   reference_fai: {type: File }
   reference_dict: {type: 'File?'}
-  input_tumor_aligned: {type: "File", secondaryFiles: ["^.bai?", ".bai?", "^.crai?", ".crai?"], inputBinding: {prefix: -I}, doc: "Input bam / cram file"}
+  input_tumor_aligned: {type: "File", secondaryFiles: ["^.bai?", ".bai?", "^.crai?", ".crai?"], doc: "Input bam / cram file"}
   input_tumor_name: string
 
   mate_copynumber_file_sample: {type: 'File?', doc: "Tumor cpn file from previous run. If used, will override bam use"}
@@ -56,7 +56,7 @@ steps:
     out: [out_exome_flag, out_cnvkit_wgs_mode, out_i_flag,out_lancet_padding, out_lancet_window, out_vardict_padding]
 
   prepare_reference:
-    run: ../sub_workflows/prepare_reference.cwl
+    run: ../subworkflows/prepare_reference.cwl
     in:
       input_fasta: reference_fasta
       input_fai: reference_fai
@@ -99,7 +99,7 @@ steps:
     out: [bam_file]
 
   run_controlfreec:
-    run: ../sub_workflows/kfdrc_controlfreec_sub_wf.cwl
+    run: ../subworkflows/kfdrc_controlfreec_sub_wf.cwl
     in:
       mate_copynumber_file_sample: mate_copynumber_file_sample
       gem_mappability_file: gem_mappability_file

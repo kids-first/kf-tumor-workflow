@@ -1,6 +1,7 @@
 cwlVersion: v1.0
 class: Workflow
-id: kfdrc_controlfreec_sub_wf
+id: kfdrc_controlfreec_tumor_only_sub_wf
+label: KFDRC ControlFreeC Tumor Only
 
 requirements:
   - class: ScatterFeatureRequirement
@@ -17,7 +18,6 @@ inputs:
   gem_mappability_file: {type: 'File?', doc: "GEM mappability file to make read count adjustments with"}
   min_subclone_presence: {type: 'float?', doc: "Use if you want to detect sublones. Recommend 0.2 for WGS, 0.3 for WXS"}
   mate_orientation_sample: {type: ['null', {type: enum, name: mate_orientation_sample, symbols: ["0", "FR", "RF", "FF"]}], default: "FR", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)"}
-  mate_orientation_control: {type: ['null', {type: enum, name: mate_orientation_control, symbols: ["0", "FR", "RF", "FF"]}], default: "FR", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)"}
   capture_regions: {type: ['null', File], doc: "If not WGS, provide "}
   indexed_reference_fasta: {type: File, secondaryFiles: [.fai]}
   reference_fai: {type: File, doc: "fasta index file for seg file conversion"}
@@ -57,7 +57,6 @@ steps:
       mate_file_sample: input_tumor_aligned
       mate_orientation_sample: mate_orientation_sample
       mini_pileup_sample: controlfreec_tumor_mini_pileup/pileup
-      mate_orientation_control: mate_orientation_control
       chr_len: chr_len
       ploidy: ploidy
       capture_regions: capture_regions
