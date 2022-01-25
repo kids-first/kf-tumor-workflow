@@ -90,7 +90,7 @@ steps:
       [filtered_vcf, filtered_pass_vcf]
 
   samtools_cram2bam_plus_calmd_tumor:
-    run: ../tools/samtools_cram2bam_plus_calmd.cwl
+    run: ../tools/samtools_calmd.cwl
     in:
       input_reads: input_tumor_aligned
       threads:
