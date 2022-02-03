@@ -10,7 +10,7 @@ requirements:
 inputs:
   indexed_reference_fasta: {type: File, secondaryFiles: [.fai, ^.dict]}
   hg38_strelka_bed: {type: File, secondaryFiles: ['.tbi']}
-  input_tumor_aligned: { type: File, secondaryFiles: ["^.bai?", ".bai?", "^.crai?", ".crai?"], doc: "tumor BAM or CRAM" }
+  input_tumor_aligned: { type: File, secondaryFiles: [{ pattern: ".bai", required: false },{ pattern: "^.bai", required: false },{ pattern: ".crai", required: false },{ pattern: "^.crai", required: false }], doc: "tumor BAM or CRAM" }
   input_tumor_name: string
   output_basename: string
   manta_memory: {type: "int?"}

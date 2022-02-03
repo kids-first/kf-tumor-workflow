@@ -10,7 +10,7 @@ requirements:
 - class: InlineJavascriptRequirement
 
 inputs:
-  # GATK Files
+  # Shared
   reference_fasta: {type: 'File', doc: "Reference fasta", "sbg:suggestedValue": {
       class: File, path: 60639014357c3a53540ca7a3, name: Homo_sapiens_assembly38.fasta},
     "sbg:fileTypes": "FASTA, FA"}
@@ -24,10 +24,11 @@ inputs:
       {pattern: "^.bai", required: false}, {pattern: ".crai", required: false}, {
         pattern: "^.crai", required: false}], doc: "BAM/SAM/CRAM file containing tumor\
       \ reads", "sbg:fileTypes": "BAM, CRAM, SAM"}
-  input_normal_aligned: {type: 'File?', secondaryFiles: [{pattern: ".bai", required: false},
-      {pattern: "^.bai", required: false}, {pattern: ".crai", required: false}, {
-        pattern: "^.crai", required: false}], doc: "BAM/SAM/CRAM file containing normal\
-      \ reads", "sbg:fileTypes": "BAM, CRAM, SAM"}
+  input_tumor_name: {type: 'string', doc: "BAM sample name of tumor. May be URL-encoded\
+      \ as output by GetSampleName with -encode argument."}
+  output_basename: {type: 'string', doc: "String value to use as basename for outputs"}
+
+  # GATK Files
   panel_of_normals: {type: 'File?', secondaryFiles: ['.tbi'], doc: "VCF file (and\
       \ index) of sites observed in normal. A panel of normals can be a useful (optional)\
       \ input to help filter out commonly seen sequencing noise that may appear as\
@@ -51,12 +52,7 @@ inputs:
       \ certain you want to run FilterAlignmentArtifacts.", "sbg:fileTypes": "IMG"}
 
   # GATK Arguments
-  input_tumor_name: {type: 'string', doc: "BAM sample name of tumor. May be URL-encoded\
-      \ as output by GetSampleName with -encode argument."}
-  input_normal_name: {type: 'string?', doc: "BAM sample name of normal(s), if any.\
-      \ May be URL-encoded as output by GetSampleName with -encode argument."}
   tool_name: {type: 'string?', doc: "Tool name for this workflow", default: "mutect2"}
-  output_basename: {type: 'string', doc: "String value to use as basename for outputs"}
   make_bamout: {type: 'boolean?', default: false, doc: "Should Mutect2 create a BAM\
       \ output? Turning on this mode may result in serious performance cost for the\
       \ caller."}
@@ -96,9 +92,9 @@ inputs:
   i_flag: { type: 'string?', doc: "Flag to intersect germline calls on padded regions. Use N if you want to skip this or have a WGS run" }
 
   # Optional
-  b_allele: { type: 'File?', doc: "germline calls, needed for BAF.  GATK HC VQSR input recommended.  Tool will prefilter for germline and pass if expression given" }
+  b_allele: { type: 'File?', doc: "germline calls, needed for BAF.  GATK HC VQSR input recommended. Tool will prefilter for germline and pass if expression given" }
   b_allele_index: { type: 'File?', doc: "Tabix index for b_allele" }
-  cfree_coeff_var: { type: 'float?', default: 0.05, doc: "Coefficient of variation to set window size.  Default 0.05 recommended" }
+  cfree_coeff_var: { type: 'float?', default: 0.05, doc: "Coefficient of variation to set window size. Default 0.05 recommended" }
   cfree_sex: { type: ['null', { type: enum, name: sex, symbols: ["XX", "XY"] }], doc: "If known, XX for female, XY for male" }
 
   # Manta SV
@@ -113,23 +109,23 @@ inputs:
   run_annotation: {type: 'boolean?', default: true, doc: "Should annotation be run\
       \ on the final VCF?"}
   vep_cache: {type: 'File?', doc: "tar gzipped cache from ensembl/local converted\
-      \ cache", "sbg:suggestedValue": {class: File, path: 5f500135e4b0370371c051b5,
-      name: homo_sapiens_vep_93_GRCh38_convert_cache.tar.gz}, "sbg:fileTypes": "TAR,\
+      \ cache", "sbg:suggestedValue": {class: File, path: 607713829360f10e3982a425,
+      name: homo_sapiens_vep_93_GRCh38.tar.gz}, "sbg:fileTypes": "TAR,\
       \ TAR.GZ, TGZ"}
   vep_ref_build: {type: 'string?', default: "GRCh38", doc: "Genome ref build used,\
       \ should line up with cache"}
   genomic_hotspots: {type: 'File[]?', doc: "Tab-delimited BED formatted file(s) containing\
-      \ hg38 genomic positions corresponding to hotspots", sbg:suggestedValue: [{
+      \ hg38 genomic positions corresponding to hotspots", "sbg:suggestedValue": [{
         class: File, path: 607713829360f10e3982a423, name: tert.bed}], "sbg:fileTypes": "BED,\
       \ TSV"}
   protein_snv_hotspots: {type: 'File[]?', doc: "Column-name-containing, tab-delimited\
       \ file(s) containing protein names and amino acid positions corresponding to\
-      \ hotspots", sbg:suggestedValue: [{class: File, path: 607713829360f10e3982a426,
+      \ hotspots", "sbg:suggestedValue": [{class: File, path: 607713829360f10e3982a426,
         name: protein_snv_cancer_hotspots_v2.tsv}], "sbg:fileTypes": "BED,\
       \ TSV"}
   protein_indel_hotspots: {type: 'File[]?', doc: "Column-name-containing, tab-delimited\
       \ file(s) containing protein names and amino acid position ranges corresponding\
-      \ to hotspots", sbg:suggestedValue: [{class: File, path: 607713829360f10e3982a424,
+      \ to hotspots", "sbg:suggestedValue": [{class: File, path: 607713829360f10e3982a424,
         name: protein_indel_cancer_hotspots_v2.tsv}], "sbg:fileTypes": "BED,\
       \ TSV"}
   retain_info: {type: 'string?', doc: "csv string with INFO fields that you want to\
@@ -187,18 +183,16 @@ outputs:
       \ by Mutect2, if desired. The assembled haplotypes and locally realigned reads\
       \ will be written as BAM. Really for debugging purposes only."}
   # ControlFreeC CNV
-  ctrlfreec_cnvs: {type: File, outputSource: run_controlfreec/ctrlfreec_cnvs}
-  ctrlfreec_pval: { type: File, outputSource: run_controlfreec/ctrlfreec_pval }
-  ctrlfreec_config: { type: File, outputSource: run_controlfreec/ctrlfreec_config }
-  ctrlfreec_pngs: { type: 'File[]', outputSource: run_controlfreec/ctrlfreec_pngs }
-  ctrlfreec_bam_ratio: { type: File, outputSource: run_controlfreec/ctrlfreec_bam_ratio }
-  ctrlfreec_bam_seg: { type: File, outputSource: run_controlfreec/ctrlfreec_bam_seg }
-  ctrlfreec_baf: { type: File, outputSource: run_controlfreec/ctrlfreec_baf }
-  ctrlfreec_info: { type: File, outputSource: run_controlfreec/ctrlfreec_info }
+  ctrlfreec_pval: { type: File, outputSource: run_controlfreec/ctrlfreec_pval, doc: 'Copy number call with GT (if BAF provided) and p values. Most people want this' }
+  ctrlfreec_config: { type: File, outputSource: run_controlfreec/ctrlfreec_config, doc: 'Config file used to run' }
+  ctrlfreec_pngs: { type: 'File[]', outputSource: run_controlfreec/ctrlfreec_pngs, doc: 'Visualization of CN and BAF' }
+  ctrlfreec_bam_ratio: { type: File, outputSource: run_controlfreec/ctrlfreec_bam_ratio, doc: 'Calls as log2 ratio' }
+  ctrlfreec_bam_seg: { type: File, outputSource: run_controlfreec/ctrlfreec_bam_seg, doc: 'Custom made microarray-style seg file' }
+  ctrlfreec_baf: { type: File, outputSource: run_controlfreec/ctrlfreec_baf, doc: 'b allele frequency file' }
+  ctrlfreec_info: { type: File, outputSource: run_controlfreec/ctrlfreec_info, doc: 'Calculated inforamtion, like ploidy, if a range was given' }
   # Manta SV
-  manta_pass_vcf: { type: File, outputSource: run_manta/manta_pass_vcf }
-  manta_prepass_vcf: { type: File, outputSource: run_manta/manta_prepass_vcf }
-  manta_small_indels: { type: File, outputSource: run_manta/manta_small_indels }
+  manta_pass_vcf: { type: File, outputSource: run_manta/manta_pass_vcf, doc: 'VCF file with SV calls that PASS' }
+  manta_prepass_vcf: { type: File, outputSource: run_manta/manta_prepass_vcf, 'VCF file with all SV calls' }
 
 
 steps:
