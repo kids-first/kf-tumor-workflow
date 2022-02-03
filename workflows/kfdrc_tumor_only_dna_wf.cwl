@@ -192,7 +192,7 @@ outputs:
   ctrlfreec_info: { type: File, outputSource: run_controlfreec/ctrlfreec_info, doc: 'Calculated inforamtion, like ploidy, if a range was given' }
   # Manta SV
   manta_pass_vcf: { type: File, outputSource: run_manta/manta_pass_vcf, doc: 'VCF file with SV calls that PASS' }
-  manta_prepass_vcf: { type: File, outputSource: run_manta/manta_prepass_vcf, 'VCF file with all SV calls' }
+  manta_prepass_vcf: { type: File, outputSource: run_manta/manta_prepass_vcf, doc: 'VCF file with all SV calls' }
 
 
 steps:
@@ -245,8 +245,6 @@ steps:
       exac_common_vcf: mutect2_exac_common_vcf
       input_tumor_aligned: input_tumor_aligned
       input_tumor_name: input_tumor_name
-      input_normal_aligned: input_normal_aligned
-      input_normal_name: input_normal_name
       panel_of_normals: panel_of_normals
       disable_adaptive_pruning:
         source: wgs_or_wxs
