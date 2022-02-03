@@ -16,7 +16,7 @@ arguments:
     valueFrom: >-
       ${
         if (inputs.input_normal_name === null && inputs.input_tumor_name === null){
-          var err = '>&2 echo "Need to give at least one of normal name ot tumor name"; exit 1;'
+          var err = '>&2 echo "Need to give at least one of normal name or tumor name"; exit 1;'
           return err;
         }
         var cmd = "";

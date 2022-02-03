@@ -16,8 +16,6 @@ arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-      set -eo pipefail
-
       samtools calmd -@ $(inputs.threads) -b --reference $(inputs.reference.path) $(inputs.input_reads.path) > $(inputs.input_reads.nameroot).bam;
       samtools index -@ $(inputs.threads) $(inputs.input_reads.nameroot).bam $(inputs.input_reads.nameroot).bai
 
