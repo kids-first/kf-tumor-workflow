@@ -9,7 +9,7 @@ requirements:
     ramMin: ${ return inputs.ram * 1000 }
     coresMin: $(inputs.cores)
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gossamer:1.0.0'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/xenome2'
 baseCommand: [tar, -xzvf]
 arguments:
   - position: 1
