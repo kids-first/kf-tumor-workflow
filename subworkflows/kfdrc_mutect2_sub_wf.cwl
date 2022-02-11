@@ -1,6 +1,7 @@
 cwlVersion: v1.2
 class: Workflow
 id: kfdrc_mutect2_sub_wf
+label: KFDRC Mutect2 Subworkflow
 requirements:
   - class: ScatterFeatureRequirement
   - class: MultipleInputFeatureRequirement

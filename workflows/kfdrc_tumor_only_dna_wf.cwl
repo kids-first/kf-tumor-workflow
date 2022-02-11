@@ -1,65 +1,15 @@
-<p align="center">
-  <img src="docs/kids_first_logo.svg" alt="Kids First repository logo" width="660px" />
-</p>
-<p align="center">
-  <a href="https://github.com/kids-first/kf-tumor-workflow/blob/main/LICENSE"><img src="https://img.shields.io/github/license/kids-first/kf-template-repo.svg?style=for-the-badge"></a>
-</p>
+cwlVersion: v1.2
+class: Workflow
+id: kfdrc_tomor_only_dna_wf
+label: KFDRC DNA Tumor Only Beta Production Workflow
+doc: "Beta workflow for tumor-only samples"
+requirements:
+- class: ScatterFeatureRequirement
+- class: MultipleInputFeatureRequirement
+- class: SubworkflowFeatureRequirement
+- class: InlineJavascriptRequirement
 
-# Kids First Tumor Only Pipeline
-
-This repo contains tools and workflows for processing of tumor-only samples.
-It is currently in beta phase.
-Much of the components have been borrowed from the Kids First Somatic Workflow.
-It can also be used to process PDX data by first pre-processing reads using the Xenome tool, explained more here in documentation.
-
-## Main workflow
-The wrapper workflow that runs most of the tools is `workflows/kfdrc_tumor_only_dna_wf.cwl`.
-
-### Tools run
-SNV
- - Mutect2 from GATK 4.2.2.0
-CNV
- - ControlFreeC v11.6
-SV
- - Manta v1.4.0
-
-### Inputs
-Most inputs have recommended values that should auto import for both files and parameters
-#### Recommended file/param defaults:
-```
-reference_fasta: Homo_sapiens_assembly38.fasta
-reference_fai: Homo_sapiens_assembly38.fasta.fai
-reference_dict: Homo_sapiens_assembly38.dict
-mutect2_af_only_gnomad_vcf: af-only-gnomad.hg38.vcf.gz
-mutect2_exac_common_vcf: small_exac_common_3.hg38.vcf.gz
-gem_mappability_file: hg38_canonical_150.mappability # will need note on file generation
-cfree_chr_len: hs38_chr.len
-b_allele: dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.common_snps.vcf.gz # will need note on file generation
-hg38_strelka_bed: hg38_strelka.bed.gz
-# If annotating SNVs, recommended
-vep_cache: homo_sapiens_vep_93_GRCh38.tar.gz
-genomic_hotspots: tert.bed # bed file with TERT gene promoter region
-protein_snv_hotspots: protein_snv_cancer_hotspots_v2.tsv
-protein_indel_hotspots: protein_indel_cancer_hotspots_v2.tsv
-bcftools_annot_vcf: af-only-gnomad.hg38.vcf.gz # yes, same as mutect2 input
-```
-#### Necessary for user to define:
-```
-input_tumor_aligned: <input bam or cram file, indexed>
-input_tumor_name: sample name, should match what is in bam/cram
-output_basename: A file name prefix for all output files
-wgs_or_wxs: Choose whether input is `WGS` or `WXS`. `WXS` works for both whole exome and panel
-wgs_calling_interval_list: if WGS, recommend wgs_canonical_calling_regions.hg38.bed
-padded_capture_regions: if WXS, recommend 100bp padded intervals of capture kit used
-i_flag: for CNV calling, whether to intersect b allele file. Set to `N` for WGS or to skip.
-cfree_sex: for CNV calling, set to XX for female, XY for male
-unpadded_capture_regions: if WXS, for CNV, capture regions with NO padding
-gatk_filter_name: ["GNOMAD_AF_HIGH"] # if annotating SNVs, highly recommended
-gatk_filter_expression: ["AF > 0.001"] # if annotating SNVs, highly recommended
-```
-
-#### Comprehensive:
-```yaml
+inputs:
   # Shared
   reference_fasta: {type: 'File', doc: "Reference fasta", "sbg:suggestedValue": {
       class: File, path: 60639014357c3a53540ca7a3, name: Homo_sapiens_assembly38.fasta},
@@ -217,11 +167,9 @@ gatk_filter_expression: ["AF > 0.001"] # if annotating SNVs, highly recommended
   cfree_threads: { type: 'int?', default: 16, doc: "For ControlFreeC. Recommend 16 max, as I/O gets saturated after that losing any advantage" }
   manta_memory: {type: 'int?', doc: "GB of memory to allocate to Manta; defaults to 10 (soft-capped)"}
   manta_cores: {type: 'int?', doc: "Number of cores to allocate to Manta; defaults to 18"}
-  ```
 
-### Output Files
 
-```yaml
+outputs:
   # Mutect2
   mutect2_prepass_vcf: {type: 'File', outputSource: run_mutect2/mutect2_filtered_vcf,
     doc: "VCF with SNV, MNV, and INDEL variant calls."}
@@ -245,4 +193,188 @@ gatk_filter_expression: ["AF > 0.001"] # if annotating SNVs, highly recommended
   # Manta SV
   manta_pass_vcf: { type: File, outputSource: run_manta/manta_pass_vcf, doc: 'VCF file with SV calls that PASS' }
   manta_prepass_vcf: { type: File, outputSource: run_manta/manta_prepass_vcf, doc: 'VCF file with all SV calls' }
-```
+
+
+steps:
+  choose_defaults:
+    run: ../tools/mode_defaults.cwl
+    in:
+      input_mode: wgs_or_wxs
+      i_flag: i_flag
+    out: [out_exome_flag, out_cnvkit_wgs_mode, out_i_flag, out_lancet_padding, out_lancet_window,
+      out_vardict_padding]
+
+  prepare_reference:
+    run: ../subworkflows/prepare_reference.cwl
+    in:
+      input_fasta: reference_fasta
+      input_fai: reference_fai
+      input_dict: reference_dict
+    out: [indexed_fasta, reference_dict]
+
+  select_interval_list:
+    run: ../tools/mode_selector.cwl
+    in:
+      input_mode: wgs_or_wxs
+      wgs_input: wgs_calling_interval_list
+      wxs_input: padded_capture_regions
+    out: [output]
+
+  gatk_intervallisttools:
+    run: ../tools/gatk_intervallisttool.cwl
+    in:
+      interval_list: select_interval_list/output
+      reference_dict: prepare_reference/reference_dict
+      exome_flag: choose_defaults/out_exome_flag
+      scatter_ct: scatter_count
+      bands:
+        valueFrom: ${return 80000000}
+    out: [output]
+
+  run_mutect2:
+    hints:
+    - class: "sbg:AWSInstanceType"
+      value: c5.9xlarge
+    run: ../subworkflows/kfdrc_mutect2_sub_wf.cwl
+    in:
+      indexed_reference_fasta: prepare_reference/indexed_fasta
+      reference_dict: prepare_reference/reference_dict
+      bed_invtl_split: gatk_intervallisttools/output
+      af_only_gnomad_vcf: mutect2_af_only_gnomad_vcf
+      alleles: mutect2_alleles_vcf
+      exac_common_vcf: mutect2_exac_common_vcf
+      input_tumor_aligned: input_tumor_aligned
+      input_tumor_name: input_tumor_name
+      panel_of_normals: panel_of_normals
+      disable_adaptive_pruning:
+        source: wgs_or_wxs
+        valueFrom: $(self == 'WXS')
+      mutect2_extra_args: mutect2_extra_args
+      filtermutectcalls_extra_args: filtermutectcalls_extra_args
+      vep_cache: vep_cache
+      vep_ref_build: vep_ref_build
+      select_vars_mode: select_vars_mode
+      genomic_hotspots: genomic_hotspots
+      protein_snv_hotspots: protein_snv_hotspots
+      protein_indel_hotspots: protein_indel_hotspots
+      retain_info: retain_info
+      retain_fmt: retain_fmt
+      add_common_fields: add_common_fields
+      bcftools_annot_columns: bcftools_annot_columns
+      bcftools_annot_vcf: bcftools_annot_vcf
+      bcftools_public_filter: bcftools_public_filter
+      gatk_filter_name: gatk_filter_name
+      gatk_filter_expression: gatk_filter_expression
+      maf_center: maf_center
+      bwa_mem_index_image: bwa_mem_index_image
+      make_bamout: make_bamout
+      run_orientation_bias_mixture_model_filter: run_orientation_bias_mixture_model_filter
+      run_annotation: run_annotation
+      disable_hotspot_annotation: disable_hotspot_annotation
+      mutect_cores: mutect_cores
+      mutect_memory: mutect_memory
+      getpileup_memory: getpileup_memory
+      learnorientation_memory: learnorientation_memory
+      filtermutectcalls_memory: filtermutectcalls_memory
+      filteralignmentartifacts_cores: filteralignmentartifacts_cores
+      filteralignmentartifacts_memory: filteralignmentartifacts_memory
+      tool_name: tool_name
+      output_basename: output_basename
+    out: [mutect2_filtered_stats, mutect2_filtered_vcf, mutect2_protected_outputs,
+      mutect2_public_outputs, mutect2_bam]
+
+  index_b_allele:
+    run: ../tools/tabix_index.cwl
+    in:
+      input_file: b_allele
+      input_index: b_allele_index
+    out: [output]
+
+  bedtools_intersect_germline:
+    run: ../tools/bedtools_intersect.cwl
+    in:
+      input_vcf: index_b_allele/output
+      output_basename: output_basename
+      input_bed_file: unpadded_capture_regions
+      flag: choose_defaults/out_i_flag
+    out:
+      [intersected_vcf]
+
+  gatk_filter_germline:
+    run: ../tools/gatk_filter_germline_variant.cwl
+    in:
+      input_vcf: bedtools_intersect_germline/intersected_vcf
+      reference_fasta: prepare_reference/indexed_fasta
+      output_basename: output_basename
+    out:
+      [filtered_vcf, filtered_pass_vcf]
+
+  samtools_cram2bam_plus_calmd_tumor:
+    run: ../tools/samtools_calmd.cwl
+    in:
+      input_reads: input_tumor_aligned
+      threads:
+        valueFrom: ${return 16;}
+      reference: prepare_reference/indexed_fasta
+    out: [bam_file]
+
+  run_controlfreec:
+    run: ../subworkflows/kfdrc_controlfreec_sub_wf.cwl
+    in:
+      mate_copynumber_file_sample: mate_copynumber_file_sample
+      gem_mappability_file: gem_mappability_file
+      min_subclone_presence: min_subclone_presence
+      input_tumor_aligned: samtools_cram2bam_plus_calmd_tumor/bam_file
+      input_tumor_name: input_tumor_name
+      threads: cfree_threads
+      output_basename: output_basename
+      ploidy: cfree_ploidy
+      mate_orientation_sample: cfree_mate_orientation_sample
+      capture_regions: unpadded_capture_regions
+      indexed_reference_fasta: prepare_reference/indexed_fasta
+      reference_fai: reference_fai
+      b_allele: gatk_filter_germline/filtered_pass_vcf
+      chr_len: cfree_chr_len
+      coeff_var: cfree_coeff_var
+      cfree_sex: cfree_sex
+    out:
+      [ctrlfreec_cnvs, ctrlfreec_pval, ctrlfreec_config, ctrlfreec_pngs, ctrlfreec_bam_ratio, ctrlfreec_bam_seg, ctrlfreec_baf, ctrlfreec_info]
+
+  index_strelka_bed:
+    run: ../tools/tabix_index.cwl
+    in:
+      input_file: hg38_strelka_bed
+      input_index: hg38_strelka_tbi
+    out: [output]
+
+  run_manta:
+    run: ../subworkflows/kfdrc_manta_sub_wf.cwl
+    in:
+      indexed_reference_fasta: prepare_reference/indexed_fasta
+      hg38_strelka_bed: index_strelka_bed/output
+      input_tumor_aligned: input_tumor_aligned
+      input_tumor_name: input_tumor_name
+      output_basename: output_basename
+      manta_memory: manta_memory
+      manta_cores: manta_cores
+    out:
+      [manta_prepass_vcf, manta_pass_vcf, manta_small_indels]
+
+
+$namespaces:
+  sbg: https://sevenbridges.com
+hints:
+- class: "sbg:maxNumberOfParallelInstances"
+  value: 4
+"sbg:license": Apache License 2.0
+"sbg:publisher": KFDRC
+"sbg:categories":
+- BAM
+- CRAM
+- GATK
+- MUTECT2
+- CONTROLFREEC
+- MANTA
+- SOMATIC
+- TUMORONLY
+- VCF
