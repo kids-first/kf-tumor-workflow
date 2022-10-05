@@ -208,7 +208,7 @@ inputs:
   bcftools_strip_columns: {type: 'string?', doc: "csv string of columns to strip if needed to avoid conflict, i.e INFO/AF"}
   bcftools_annot_vcf: {type: 'File', doc: "bgzipped annotation vcf file", "sbg:suggestedValue": {
       class: File, path: 6324ef5ad01163633daa00d8, name: gnomad_3.1.1.vwb_subset.vcf.gz}}
-  bcftools_annot_vcf_index: {type: 'File', doc: "index of bcftools_annot_vcf", "sbg:suggestedValue": {
+  bcftools_annot_vcf_index: {type: 'File?', doc: "index of bcftools_annot_vcf", "sbg:suggestedValue": {
       class: File, path: 6324ef5ad01163633daa00d7, name: gnomad_3.1.1.vwb_subset.vcf.gz.tbi}}
   bcftools_public_filter: {type: 'string?', doc: "Will hard filter final result to create a public version", default: FILTER="PASS"|INFO/HotSpotAllele=1}
   gatk_filter_name: {type: 'string[]', doc: "Array of names for each filter tag to add, recommend: [\"NORM_DP_LOW\", \"GNOMAD_AF_HIGH\"]"}
@@ -257,6 +257,13 @@ steps:
       input_fai: reference_fai
       input_dict: reference_dict
     out: [indexed_fasta, reference_dict]
+  
+  index_bcftools_annot_vcf:
+    run: ../tools/tabix_index.cwl
+    in:
+      input_file: bcftools_annot_vcf
+      input_index: bcftools_annot_vcf_index
+    out: [output]
 
   select_interval_list:
     run: ../tools/mode_selector.cwl
@@ -299,12 +306,13 @@ steps:
         valueFrom: $(self == 'WXS')
       mutect2_extra_args: mutect2_extra_args
       filtermutectcalls_extra_args: filtermutectcalls_extra_args
+      select_vars_mode: select_vars_mode
       retain_info: retain_info
       retain_fmt: retain_fmt
       retain_ann: retain_ann
       bcftools_annot_columns: bcftools_annot_columns
       bcftools_strip_columns: bcftools_strip_columns
-      bcftools_annot_vcf: bcftools_annot_vcf
+      bcftools_annot_vcf: index_bcftools_annot_vcf/output
       bcftools_public_filter: bcftools_public_filter
       dbnsfp: dbnsfp
       dbnsfp_fields: dbnsfp_fields

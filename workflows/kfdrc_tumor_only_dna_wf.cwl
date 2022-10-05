@@ -198,6 +198,13 @@ steps:
       input_dict: reference_dict
     out: [indexed_fasta, reference_dict]
 
+  index_bcftools_annot_vcf:
+    run: ../tools/tabix_index.cwl
+    in:
+      input_file: bcftools_annot_vcf
+      input_index: bcftools_annot_vcf_index
+    out: [output]
+
   select_interval_list:
     run: ../tools/mode_selector.cwl
     in:
@@ -239,12 +246,13 @@ steps:
         valueFrom: $(self == 'WXS')
       mutect2_extra_args: mutect2_extra_args
       filtermutectcalls_extra_args: filtermutectcalls_extra_args
+      select_vars_mode: select_vars_mode
       retain_info: retain_info
       retain_fmt: retain_fmt
       retain_ann: retain_ann
       bcftools_annot_columns: bcftools_annot_columns
       bcftools_strip_columns: bcftools_strip_columns
-      bcftools_annot_vcf: bcftools_annot_vcf
+      bcftools_annot_vcf: index_bcftools_annot_vcf/output
       bcftools_public_filter: bcftools_public_filter
       dbnsfp: dbnsfp
       dbnsfp_fields: dbnsfp_fields
