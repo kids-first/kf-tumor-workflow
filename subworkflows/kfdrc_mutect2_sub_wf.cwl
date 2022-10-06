@@ -231,7 +231,9 @@ steps:
       indexed_reference_fasta: indexed_reference_fasta
       input_vcf: gatk_selectvariants_mutect2/pass_vcf
       input_tumor_name: input_tumor_name
-      input_normal_name: input_normal_name
+      input_normal_name:
+        source: input_normal_name
+        valueFrom: "$(self ? self : 'NONE')"
       add_common_fields: add_common_fields
       retain_info: retain_info
       retain_fmt: retain_fmt
