@@ -39,7 +39,7 @@ inputs:
     hg38_strelka_bed: {type: File, secondaryFiles: [.tbi]}
     input_tumor_aligned: { type: 'File?', secondaryFiles: ["^.bai?", ".bai?", "^.crai?", ".crai?"], doc: "tumor BAM or CRAM" }
     input_normal_aligned: { type: 'File?', secondaryFiles: ["^.bai?", ".bai?", "^.crai?", ".crai?"], doc: "normal BAM or CRAM" }
-    cores: {type: ['null', int], default: 18}
+    cores: {type: ['null', int], default: 16}
     ram: {type: "int?", default: 10, doc: "GB of RAM an instance must have to run the task"}
     output_basename: string
 outputs:

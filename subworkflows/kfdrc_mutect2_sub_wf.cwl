@@ -43,25 +43,35 @@ inputs:
   # SelectVariants
   select_vars_mode: { type: ['null', { type: enum, name: select_vars_mode, symbols: ["gatk", "grep"] }], doc: "Choose 'gatk' for SelectVariants tool, or 'grep' for grep expression", default: "gatk" }
 
-  # Annotation Files (optional)
-  vep_cache: { type: 'File?', doc: "tar gzipped cache from ensembl/local converted cache" }
+  # VEP params (optional)
+  vep_cache: {type: 'File', doc: "tar gzipped cache from ensembl/local converted cache"}
+  vep_ram: {type: 'int?', doc: "In GB, may need to increase this value depending on the size/complexity of input"}
+  vep_cores: {type: 'int?', doc: "Number of cores to use. May need to increase for really large inputs"}
+  vep_buffer_size: {type: 'int?', doc: "Increase or decrease to balance speed and memory usage"}
+  dbnsfp: { type: 'File?', secondaryFiles: [.tbi,^.readme.txt], doc: "VEP-formatted plugin file, index, and readme file containing dbNSFP annotations" }
+  dbnsfp_fields: { type: 'string?', doc: "csv string with desired fields to annotate. Use ALL to grab all"}
+  merged: { type: 'boolean?', doc: "Set to true if merged cache used", default: true }
+  cadd_indels: { type: 'File?', secondaryFiles: [.tbi], doc: "VEP-formatted plugin file and index containing CADD indel annotations" }
+  cadd_snvs: { type: 'File?', secondaryFiles: [.tbi], doc: "VEP-formatted plugin file and index containing CADD SNV annotations" }
+  run_cache_existing: { type: boolean, doc: "Run the check_existing flag for cache" }
+  run_cache_af: { type: boolean, doc: "Run the allele frequency flags for cache" }
+
+  # annotation vars
   genomic_hotspots: { type: 'File[]?', doc: "Tab-delimited BED formatted file(s) containing hg38 genomic positions corresponding to hotspots" }
   protein_snv_hotspots: { type: 'File[]?', doc: "Column-name-containing, tab-delimited file(s) containing protein names and amino acid positions corresponding to hotspots" }
   protein_indel_hotspots: { type: 'File[]?', doc: "Column-name-containing, tab-delimited file(s) containing protein names and amino acid position ranges corresponding to hotspots" }
-  bcftools_annot_vcf: { type: 'File?', secondaryFiles: ['.tbi'], doc: "bgzipped annotation vcf file" }
-
-  # Annotation Arguments (optional)
-  run_annotation: { type: 'boolean?' }
-  vep_ref_build: { type: 'string?', doc: "Genome ref build used, should line up with cache.", default: "GRCh38" }
-  retain_info: { type: 'string?', doc: "csv string with INFO fields that you want to keep", default: "MBQ,TLOD,HotSpotAllele" }
-  retain_fmt: { type: 'string?', doc: "csv string with FORMAT fields that you want to keep" }
-  add_common_fields: { type: 'boolean?', doc: "Set to true if input is a strelka2 vcf that hasn't had common fields added", default: false }
-  bcftools_annot_columns: { type: 'string?', doc: "csv string of columns from annotation to port into the input vcf, i.e INFO/AF", default: "INFO/AF" }
-  bcftools_public_filter: { type: 'string?', doc: "Will hard filter final result to create a public version", default: FILTER="PASS"|INFO/HotSpotAllele=1 }
-  gatk_filter_name: { type: 'string[]?', doc: "Array of names for each filter tag to add, recommend: [\"NORM_DP_LOW\", \"GNOMAD_AF_HIGH\"]" }
-  gatk_filter_expression: { type: 'string[]?', doc: "Array of filter expressions to establish criteria to tag variants with. See https://gatk.broadinstitute.org/hc/en-us/articles/360036730071-VariantFiltration, recommend: \"vc.getGenotype('\" + inputs.input_normal_name + \"').getDP() <= 7\"), \"AF > 0.001\"]" }
+  retain_info: {type: 'string?', doc: "csv string with INFO fields that you want to keep", default: "MBQ,TLOD,HotSpotAllele"}
+  retain_fmt: {type: 'string?', doc: "csv string with FORMAT fields that you want to keep"}
+  retain_ann: { type: 'string?', doc: "csv string of annotations (within the VEP CSQ/ANN) to retain as extra columns in MAF" }
+  add_common_fields: {type: 'boolean?', doc: "Set to true if input is a strelka2 vcf that hasn't had common fields added", default: false}
+  bcftools_annot_columns: {type: 'string?', doc: "csv string of columns from annotation to port into the input vcf, i.e INFO/AF", default: "INFO/AF"}
+  bcftools_strip_columns: {type: 'string?', doc: "csv string of columns to strip if needed to avoid conflict, i.e INFO/AF"}
+  bcftools_annot_vcf: {type: 'File?', secondaryFiles: ['.tbi'], doc: "additional bgzipped annotation vcf file"}
+  bcftools_public_filter: {type: 'string?', doc: "Will hard filter final result to create a public version", default: FILTER="PASS"|INFO/HotSpotAllele=1}
+  gatk_filter_name: {type: 'string[]', doc: "Array of names for each filter tag to add, recommend: [\"NORM_DP_LOW\", \"GNOMAD_AF_HIGH\"]"}
+  gatk_filter_expression: {type: 'string[]', doc: "Array of filter expressions to establish criteria to tag variants with. See https://gatk.broadinstitute.org/hc/en-us/articles/360036730071-VariantFiltration, recommend: \"vc.getGenotype('\" + inputs.input_normal_name + \"').getDP() <= 7\"), \"AF > 0.001\"]"}
   disable_hotspot_annotation: { type: 'boolean?', doc: "Disable Hotspot Annotation and skip this task.", default: false }
-  maf_center: { type: 'string?', doc: "Sequencing center of variant called", default: "." }
+  maf_center: {type: 'string?', doc: "Sequencing center of variant called", default: "."}
 
   # Resource Control
   mutect_cores: { type: 'int?' }
@@ -75,8 +85,8 @@ inputs:
 outputs:
   mutect2_filtered_stats: { type: 'File', outputSource: filter_mutect2_vcf/stats_table }
   mutect2_filtered_vcf: { type: 'File', outputSource: pickvalue_workaround/output }
-  mutect2_protected_outputs: { type: 'File[]?', outputSource: rename_protected/renamed_files }
-  mutect2_public_outputs: { type: 'File[]?', outputSource: rename_public/renamed_files }
+  mutect2_protected_outputs: {type: 'File[]', outputSource: annotate/annotated_protected}
+  mutect2_public_outputs: {type: 'File[]', outputSource: annotate/annotated_public}
   mutect2_bam: { type: 'File?', outputSource: gatk_gathersortindexbams/output }
 
 steps:
@@ -206,7 +216,6 @@ steps:
 
   gatk_selectvariants_mutect2:
     run: ../tools/gatk_selectvariants.cwl
-    when: '$(inputs.enable_tool ? true : false)'
     in:
       input_vcf:
         source: [gatk_filteralignmentartifacts/output, filter_mutect2_vcf/filtered_vcf]
@@ -214,27 +223,38 @@ steps:
       output_basename: output_basename
       tool_name: tool_name
       mode: select_vars_mode
-      enable_tool: run_annotation
     out: [pass_vcf]
 
   annotate:
-    run: ../subworkflows/kfdrc_annot_vcf_sub_wf.cwl
-    when: '$(inputs.enable_workflow ? true : false)'
+    run: ../kf-somatic-workflow/workflow/kfdrc_annot_vcf_wf.cwl
     in:
       indexed_reference_fasta: indexed_reference_fasta
       input_vcf: gatk_selectvariants_mutect2/pass_vcf
       input_tumor_name: input_tumor_name
-      input_normal_name: input_normal_name
+      input_normal_name:
+        source: input_normal_name
+        valueFrom: "$(self ? self : 'NONE')"
       add_common_fields: add_common_fields
       retain_info: retain_info
       retain_fmt: retain_fmt
+      retain_ann: retain_ann
       bcftools_annot_columns: bcftools_annot_columns
+      bcftools_strip_columns: bcftools_strip_columns
       bcftools_annot_vcf: bcftools_annot_vcf
       bcftools_public_filter: bcftools_public_filter
+      dbnsfp: dbnsfp
+      dbnsfp_fields: dbnsfp_fields
+      merged: merged
+      cadd_indels: cadd_indels
+      cadd_snvs: cadd_snvs
+      run_cache_af: run_cache_af
+      run_cache_existing: run_cache_existing
       gatk_filter_name: gatk_filter_name
       gatk_filter_expression: gatk_filter_expression
       vep_cache: vep_cache
-      vep_ref_build: vep_ref_build
+      vep_ram: vep_ram
+      vep_cores: vep_cores
+      vep_buffer_size: vep_buffer_size
       disable_hotspot_annotation: disable_hotspot_annotation
       genomic_hotspots: genomic_hotspots
       protein_snv_hotspots: protein_snv_hotspots
@@ -242,40 +262,8 @@ steps:
       maf_center: maf_center
       output_basename: output_basename
       tool_name: tool_name
-      enable_workflow: run_annotation
-    out: [annotated_protected_vcf, annotated_protected_maf, annotated_public_vcf, annotated_public_maf]
+    out: [annotated_protected, annotated_public]
 
-  rename_protected:
-    run: ../tools/generic_rename_outputs.cwl
-    when: '$(inputs.enable_tool ? true : false)'
-    in:
-      input_files:
-        source: [annotate/annotated_protected_vcf, annotate/annotated_protected_maf]
-        valueFrom: "${return [self[0],self[0].secondaryFiles[0],self[1]]}"
-      rename_to:
-        source: [output_basename, tool_name]
-        valueFrom: "${var pro_vcf=self[0] + '.' + self[1] + '.norm.annot.protected.vcf.gz'; \
-        var pro_tbi=self[0] + '.' + self[1] + '.norm.annot.protected.vcf.gz.tbi'; \
-        var pro_maf=self[0] + '.' + self[1] + '.norm.annot.protected.maf'; \
-        return [pro_vcf, pro_tbi, pro_maf];}"
-      enable_tool: run_annotation
-    out: [renamed_files]
-
-  rename_public:
-    run: ../tools/generic_rename_outputs.cwl
-    when: '$(inputs.enable_tool ? true : false)'
-    in:
-      input_files:
-        source: [annotate/annotated_public_vcf, annotate/annotated_public_maf]
-        valueFrom: "${return [self[0],self[0].secondaryFiles[0],self[1]]}"
-      rename_to:
-        source: [output_basename, tool_name]
-        valueFrom: "${var pub_vcf=self[0] + '.' + self[1] + '.norm.annot.public.vcf.gz'; \
-        var pub_tbi=self[0] + '.' + self[1] + '.norm.annot.public.vcf.gz.tbi'; \
-        var pub_maf=self[0] + '.' + self[1] + '.norm.annot.public.maf'; \
-        return [pub_vcf, pub_tbi, pub_maf];}"
-      enable_tool: run_annotation
-    out: [renamed_files]
 
 $namespaces:
   sbg: https://sevenbridges.com
