@@ -18,6 +18,7 @@ The SNV annotation workflow is maintained in a different repo.
 Therefore, in order to get the rest of the code after cloning, you need to run: `git submodule init` and `git submodule update`.
 Currently this workflow uses tools from `v4.3.0` of the somatic workflow.
 If that is updated, submodule should be as well.
+More info on how this worked [here](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
 
 ## Main workflow
 The wrapper workflow that runs most of the tools is `workflows/kfdrc_tumor_only_dna_wf.cwl`.
