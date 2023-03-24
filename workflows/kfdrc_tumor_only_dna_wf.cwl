@@ -163,6 +163,9 @@ doc: |-
     hg38_strelka_bed: { type: File, doc: "Bgzipped interval bed file. Recommned padding 100bp for WXS; Recommend canonical chromosomes for WGS" }
     hg38_strelka_tbi: { type: 'File?', doc: "Tabix index for hg38_strelka_bed" }
 
+    # AnnotSV Inputs
+    annotsv_annotations_dir_tgz: {type: 'File?', doc: "TAR.GZ'd Directory containing annotations for AnnotSV"}
+
     # WXS only Fields
     unpadded_capture_regions: { type: 'File?', doc: "Capture regions with NO padding for cnv calling" }
 
@@ -337,6 +340,11 @@ inputs:
       \ 100bp for WXS; Recommend canonical chromosomes for WGS"}
   hg38_strelka_tbi: {type: 'File?', doc: "Tabix index for hg38_strelka_bed"}
 
+  # AnnotSV Inputs
+  annotsv_annotations_dir_tgz: {type: 'File?', doc: "TAR.GZ'd Directory containing\
+      \ annotations for AnnotSV", "sbg:fileTypes": "TAR, TAR.GZ, TGZ", "sbg:suggestedValue": {
+      class: File, path: 6328ab26d01163633dabcc2e, name: annotsv_311_plus_ens105_annotations_dir.tgz}}
+
   # WXS only Fields
   unpadded_capture_regions: {type: 'File?', doc: "Capture regions with NO padding\
       \ for cnv calling"}
@@ -453,6 +461,8 @@ outputs:
       with SV calls that PASS'}
   manta_prepass_vcf: {type: File, outputSource: run_manta/manta_prepass_vcf, doc: 'VCF
       file with all SV calls'}
+  annotsv_annotated_calls: {type: 'File?', outputSource: run_annotsv/annotated_calls, doc: 'Manta calls annotated with AnnotSV'}
+  annotsv_unannotated_calls: {type: 'File?', outputSource: run_annotsv/unannotated_calls, doc: 'Manta calls not annotated with AnnotSV'}
 
 
 steps:
@@ -624,6 +634,13 @@ steps:
       manta_cores: manta_cores
     out: [manta_prepass_vcf, manta_pass_vcf, manta_small_indels]
 
+  run_annotsv:
+    run: ../kf-somatic-workflow/tools/annotsv.cwl
+    in:
+      annotations_dir_tgz: annotsv_annotations_dir_tgz
+      sv_input_file: run_manta/manta_pass_vcf
+    out: [annotated_calls, unannotated_calls]
+
 
 $namespaces:
   sbg: https://sevenbridges.com
@@ -644,5 +661,5 @@ hints:
 - VCF
 
 "sbg:links":
-- id: 'https://github.com/kids-first/kf-tumor-workflow/tree/v0.2.0-beta'
+- id: 'https://github.com/kids-first/kf-tumor-workflow/tree/v0.3.0-beta'
   label: github-release
