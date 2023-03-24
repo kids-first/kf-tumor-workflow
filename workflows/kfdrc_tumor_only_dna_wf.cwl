@@ -145,7 +145,7 @@ doc: |-
     # ControlFreeC CNV
     mate_copynumber_file_sample: {type: 'File?', doc: "Tumor cpn file from previous run. If used, will override bam use"}
     gem_mappability_file: {type: 'File?', doc: "GEM mappability file to make read count adjustments with"}
-    min_subclone_presence: {type: 'float?', doc: "Use if you want to detect subclones. Recommend 0.2 for WGS, 0.3 for WXS"}
+    min_subclone_presence: {type: 'int?', doc: "Tool default 100 (meaning \"do not look for subclones\"). Suggested: 20 (or 0.2) for WGS and 30 (or 0.3) for WES."}
     cfree_chr_len: { type: File, doc: "file with chromosome lengths" }
     cfree_ploidy: { type: 'int[]', doc: "Array of ploidy possibilities for ControlFreeC to try" }
     cfree_mate_orientation_sample: { type: ['null', { type: enum, name: mate_orientation_sample, symbols: ["0", "FR", "RF", "FF"] }], default: "FR", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)" }
@@ -250,6 +250,8 @@ inputs:
       \ reads", "sbg:fileTypes": "BAM, CRAM, SAM"}
   input_tumor_name: {type: 'string', doc: "BAM sample name of tumor. May be URL-encoded\
       \ as output by GetSampleName with -encode argument."}
+  old_tumor_name: {type: 'string?', doc: "If `SM:` sample name in te align file is\
+      \ different than `input_tumor_name`, you **must** provide it here"}
   output_basename: {type: 'string', doc: "String value to use as basename for outputs"}
 
   # GATK Files
@@ -309,8 +311,7 @@ inputs:
       \ run. If used, will override bam use"}
   gem_mappability_file: {type: 'File?', doc: "GEM mappability file to make read count\
       \ adjustments with"}
-  min_subclone_presence: {type: 'float?', doc: "Use if you want to detect subclones.\
-      \ Recommend 0.2 for WGS, 0.3 for WXS"}
+  min_subclone_presence: {type: 'int?', doc: "Tool default 100 (meaning \"do not look for subclones\"). Suggested: 20 (or 0.2) for WGS and 30 (or 0.3) for WES."}
   cfree_chr_len: {type: File, doc: "file with chromosome lengths"}
   cfree_ploidy: {type: 'int[]', doc: "Array of ploidy possibilities for ControlFreeC\
       \ to try"}
@@ -501,6 +502,7 @@ steps:
       exac_common_vcf: mutect2_exac_common_vcf
       input_tumor_aligned: input_tumor_aligned
       input_tumor_name: input_tumor_name
+      old_tumor_name: old_tumor_name
       panel_of_normals: panel_of_normals
       disable_adaptive_pruning:
         source: wgs_or_wxs
