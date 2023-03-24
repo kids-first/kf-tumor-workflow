@@ -315,7 +315,8 @@ inputs:
   gem_mappability_file: {type: 'File?', doc: "GEM mappability file to make read count\
       \ adjustments with"}
   min_subclone_presence: {type: 'int?', doc: "Tool default 100 (meaning \"do not look for subclones\"). Suggested: 20 (or 0.2) for WGS and 30 (or 0.3) for WES."}
-  cfree_chr_len: {type: File, doc: "file with chromosome lengths"}
+  cfree_chr_len: {type: 'File', doc: "file with chromosome lengths", "sbg:suggestedValue": {
+      class: File, path: 5f500135e4b0370371c051c4, name: hs38_chr.len}}
   cfree_ploidy: {type: 'int[]', doc: "Array of ploidy possibilities for ControlFreeC\
       \ to try"}
   cfree_mate_orientation_sample: {type: ['null', {type: enum, name: mate_orientation_sample,
@@ -336,9 +337,11 @@ inputs:
       \ known, XX for female, XY for male"}
 
   # Manta SV
-  hg38_strelka_bed: {type: File, doc: "Bgzipped interval bed file. Recommned padding\
-      \ 100bp for WXS; Recommend canonical chromosomes for WGS"}
-  hg38_strelka_tbi: {type: 'File?', doc: "Tabix index for hg38_strelka_bed"}
+  hg38_strelka_bed: {type: 'File', doc: "Bgzipped interval bed file. Recommned padding\
+      \ 100bp for WXS; Recommend canonical chromosomes for WGS", "sbg:suggestedValue": {
+      class: File, path: 5f500135e4b0370371c051ae, name: hg38_strelka.bed.gz}}
+  hg38_strelka_tbi: {type: 'File?', doc: "Tabix index for hg38_strelka_bed", "sbg:suggestedValue": {
+      class: File, path: 5f500135e4b0370371c051aa, name: hg38_strelka.bed.gz.tbi}}
 
   # AnnotSV Inputs
   annotsv_annotations_dir_tgz: {type: 'File?', doc: "TAR.GZ'd Directory containing\
