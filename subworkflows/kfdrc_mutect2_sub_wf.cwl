@@ -15,8 +15,10 @@ inputs:
   bed_invtl_split: { type: 'File[]', doc: "Bed file intervals passed on from and outside pre-processing step" }
   input_tumor_aligned: { type: 'File', secondaryFiles: [{ pattern: ".bai", required: false },{ pattern: "^.bai", required: false },{ pattern: ".crai", required: false },{ pattern: "^.crai", required: false }] }
   input_tumor_name: { type: 'string' }
+  old_tumor_name: { type: 'string?', doc: "If `SM:` sample name in te align file is different than `input_tumor_name`, you **must** provide it here"}
   input_normal_aligned: { type: 'File?', secondaryFiles: [{ pattern: ".bai", required: false },{ pattern: "^.bai", required: false },{ pattern: ".crai", required: false },{ pattern: "^.crai", required: false }] }
   input_normal_name: { type: 'string?' }
+  old_normal_name: { type: 'string?', doc: "If `SM:` sample name in te align file is different than `input_normal_name`, you **must** provide it here"}
   tool_name: { type: 'string?', doc: "String to describe what tool was run as part of file name", default: "mutect2" }
   output_basename: { type: 'string' }
 
@@ -84,7 +86,7 @@ inputs:
 
 outputs:
   mutect2_filtered_stats: { type: 'File', outputSource: filter_mutect2_vcf/stats_table }
-  mutect2_filtered_vcf: { type: 'File', outputSource: pickvalue_workaround/output }
+  mutect2_filtered_vcf: { type: 'File', outputSource: pickvalue_workaround_artifacts/output }
   mutect2_protected_outputs: {type: 'File[]', outputSource: annotate/annotated_protected}
   mutect2_public_outputs: {type: 'File[]', outputSource: annotate/annotated_public}
   mutect2_bam: { type: 'File?', outputSource: gatk_gathersortindexbams/output }
@@ -99,8 +101,12 @@ steps:
       reference: indexed_reference_fasta
       input_tumor_aligned: input_tumor_aligned
       input_normal_aligned: input_normal_aligned
-      input_tumor_name: input_tumor_name
-      input_normal_name: input_normal_name
+      input_tumor_name: 
+        source: [old_tumor_name, input_tumor_name]
+        pickValue: first_non_null
+      input_normal_name:
+        source: [old_normal_name, input_normal_name]
+        pickValue: first_non_null
       interval_list: bed_invtl_split
       germline_resource_vcf: af_only_gnomad_vcf
       panel_of_normals: panel_of_normals
@@ -191,11 +197,29 @@ steps:
       max_memory: filtermutectcalls_memory
     out: [stats_table, filtered_vcf]
 
+  rename_vcf_samples:
+    when: $(inputs.old_tumor_name != null)
+    run: ../tools/bcftools_reheader_vcf.cwl
+    in:
+      input_vcf: filter_mutect2_vcf/filtered_vcf
+      input_normal_name: input_normal_name
+      input_tumor_name: input_tumor_name
+      old_tumor_name: old_tumor_name
+    out: [reheadered_vcf]
+
+  pickvalue_workaround_rename:
+    run: ../kf-somatic-workflow/tools/expression_pickvalue_workaround.cwl
+    in:
+      input_file:
+        source: [rename_vcf_samples/reheadered_vcf, filter_mutect2_vcf/filtered_vcf]
+        pickValue: first_non_null
+    out: [output]
+
   gatk_filteralignmentartifacts:
     run: ../tools/gatk_filteralignmentartifacts.cwl
     when: $(inputs.bwa_mem_index_image != null)
     in:
-      input_vcf: filter_mutect2_vcf/filtered_vcf
+      input_vcf: pickvalue_workaround_rename/output
       reference: indexed_reference_fasta
       input_reads: input_tumor_aligned
       bwa_mem_index_image: bwa_mem_index_image
@@ -206,11 +230,11 @@ steps:
       max_memory: filteralignmentartifacts_memory
     out: [output]
 
-  pickvalue_workaround:
-    run: ../tools/expression_pickvalue_workaround.cwl
+  pickvalue_workaround_artifacts:
+    run: ../kf-somatic-workflow/tools/expression_pickvalue_workaround.cwl
     in:
       input_file:
-        source: [gatk_filteralignmentartifacts/output, filter_mutect2_vcf/filtered_vcf]
+        source: [gatk_filteralignmentartifacts/output, pickvalue_workaround_rename/output]
         pickValue: first_non_null
     out: [output]
 
@@ -218,7 +242,7 @@ steps:
     run: ../tools/gatk_selectvariants.cwl
     in:
       input_vcf:
-        source: [gatk_filteralignmentartifacts/output, filter_mutect2_vcf/filtered_vcf]
+        source: [gatk_filteralignmentartifacts/output, pickvalue_workaround_rename/output]
         pickValue: first_non_null
       output_basename: output_basename
       tool_name: tool_name

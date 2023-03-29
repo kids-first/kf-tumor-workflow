@@ -145,7 +145,7 @@ doc: |-
     # ControlFreeC CNV
     mate_copynumber_file_sample: {type: 'File?', doc: "Tumor cpn file from previous run. If used, will override bam use"}
     gem_mappability_file: {type: 'File?', doc: "GEM mappability file to make read count adjustments with"}
-    min_subclone_presence: {type: 'float?', doc: "Use if you want to detect subclones. Recommend 0.2 for WGS, 0.3 for WXS"}
+    min_subclone_presence: {type: 'int?', doc: "Tool default 100 (meaning \"do not look for subclones\"). Suggested: 20 (or 0.2) for WGS and 30 (or 0.3) for WES."}
     cfree_chr_len: { type: File, doc: "file with chromosome lengths" }
     cfree_ploidy: { type: 'int[]', doc: "Array of ploidy possibilities for ControlFreeC to try" }
     cfree_mate_orientation_sample: { type: ['null', { type: enum, name: mate_orientation_sample, symbols: ["0", "FR", "RF", "FF"] }], default: "FR", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)" }
@@ -162,6 +162,9 @@ doc: |-
     # Manta SV
     hg38_strelka_bed: { type: File, doc: "Bgzipped interval bed file. Recommned padding 100bp for WXS; Recommend canonical chromosomes for WGS" }
     hg38_strelka_tbi: { type: 'File?', doc: "Tabix index for hg38_strelka_bed" }
+
+    # AnnotSV Inputs
+    annotsv_annotations_dir_tgz: {type: 'File?', doc: "TAR.GZ'd Directory containing annotations for AnnotSV"}
 
     # WXS only Fields
     unpadded_capture_regions: { type: 'File?', doc: "Capture regions with NO padding for cnv calling" }
@@ -250,6 +253,8 @@ inputs:
       \ reads", "sbg:fileTypes": "BAM, CRAM, SAM"}
   input_tumor_name: {type: 'string', doc: "BAM sample name of tumor. May be URL-encoded\
       \ as output by GetSampleName with -encode argument."}
+  old_tumor_name: {type: 'string?', doc: "If `SM:` sample name in te align file is\
+      \ different than `input_tumor_name`, you **must** provide it here"}
   output_basename: {type: 'string', doc: "String value to use as basename for outputs"}
 
   # GATK Files
@@ -309,9 +314,9 @@ inputs:
       \ run. If used, will override bam use"}
   gem_mappability_file: {type: 'File?', doc: "GEM mappability file to make read count\
       \ adjustments with"}
-  min_subclone_presence: {type: 'float?', doc: "Use if you want to detect subclones.\
-      \ Recommend 0.2 for WGS, 0.3 for WXS"}
-  cfree_chr_len: {type: File, doc: "file with chromosome lengths"}
+  min_subclone_presence: {type: 'int?', doc: "Tool default 100 (meaning \"do not look for subclones\"). Suggested: 20 (or 0.2) for WGS and 30 (or 0.3) for WES."}
+  cfree_chr_len: {type: 'File', doc: "file with chromosome lengths", "sbg:suggestedValue": {
+      class: File, path: 5f500135e4b0370371c051c4, name: hs38_chr.len}}
   cfree_ploidy: {type: 'int[]', doc: "Array of ploidy possibilities for ControlFreeC\
       \ to try"}
   cfree_mate_orientation_sample: {type: ['null', {type: enum, name: mate_orientation_sample,
@@ -332,9 +337,16 @@ inputs:
       \ known, XX for female, XY for male"}
 
   # Manta SV
-  hg38_strelka_bed: {type: File, doc: "Bgzipped interval bed file. Recommned padding\
-      \ 100bp for WXS; Recommend canonical chromosomes for WGS"}
-  hg38_strelka_tbi: {type: 'File?', doc: "Tabix index for hg38_strelka_bed"}
+  hg38_strelka_bed: {type: 'File', doc: "Bgzipped interval bed file. Recommned padding\
+      \ 100bp for WXS; Recommend canonical chromosomes for WGS", "sbg:suggestedValue": {
+      class: File, path: 5f500135e4b0370371c051ae, name: hg38_strelka.bed.gz}}
+  hg38_strelka_tbi: {type: 'File?', doc: "Tabix index for hg38_strelka_bed", "sbg:suggestedValue": {
+      class: File, path: 5f500135e4b0370371c051aa, name: hg38_strelka.bed.gz.tbi}}
+
+  # AnnotSV Inputs
+  annotsv_annotations_dir_tgz: {type: 'File?', doc: "TAR.GZ'd Directory containing\
+      \ annotations for AnnotSV", "sbg:fileTypes": "TAR, TAR.GZ, TGZ", "sbg:suggestedValue": {
+      class: File, path: 6328ab26d01163633dabcc2e, name: annotsv_311_plus_ens105_annotations_dir.tgz}}
 
   # WXS only Fields
   unpadded_capture_regions: {type: 'File?', doc: "Capture regions with NO padding\
@@ -452,6 +464,8 @@ outputs:
       with SV calls that PASS'}
   manta_prepass_vcf: {type: File, outputSource: run_manta/manta_prepass_vcf, doc: 'VCF
       file with all SV calls'}
+  annotsv_annotated_calls: {type: 'File?', outputSource: run_annotsv/annotated_calls, doc: 'Manta calls annotated with AnnotSV'}
+  annotsv_unannotated_calls: {type: 'File?', outputSource: run_annotsv/unannotated_calls, doc: 'Manta calls not annotated with AnnotSV'}
 
 
 steps:
@@ -501,6 +515,7 @@ steps:
       exac_common_vcf: mutect2_exac_common_vcf
       input_tumor_aligned: input_tumor_aligned
       input_tumor_name: input_tumor_name
+      old_tumor_name: old_tumor_name
       panel_of_normals: panel_of_normals
       disable_adaptive_pruning:
         source: wgs_or_wxs
@@ -622,6 +637,13 @@ steps:
       manta_cores: manta_cores
     out: [manta_prepass_vcf, manta_pass_vcf, manta_small_indels]
 
+  run_annotsv:
+    run: ../kf-somatic-workflow/tools/annotsv.cwl
+    in:
+      annotations_dir_tgz: annotsv_annotations_dir_tgz
+      sv_input_file: run_manta/manta_pass_vcf
+    out: [annotated_calls, unannotated_calls]
+
 
 $namespaces:
   sbg: https://sevenbridges.com
@@ -642,5 +664,5 @@ hints:
 - VCF
 
 "sbg:links":
-- id: 'https://github.com/kids-first/kf-tumor-workflow/tree/v0.2.0-beta'
+- id: 'https://github.com/kids-first/kf-tumor-workflow/tree/v0.3.0-beta'
   label: github-release

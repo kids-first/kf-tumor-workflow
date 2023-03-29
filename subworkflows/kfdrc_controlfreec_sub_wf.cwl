@@ -16,7 +16,7 @@ inputs:
   ploidy: {type: 'int[]', doc: "Array of ploidy possibilities for ControlFreeC to try"}
   mate_copynumber_file_sample: {type: 'File?', doc: "Tumor cpn file from previous run. If used, will override bam use"}
   gem_mappability_file: {type: 'File?', doc: "GEM mappability file to make read count adjustments with"}
-  min_subclone_presence: {type: 'float?', doc: "Use if you want to detect sublones. Recommend 0.2 for WGS, 0.3 for WXS"}
+  min_subclone_presence: {type: 'int?', doc: "Tool default 100 (meaning \"do not look for subclones\"). Suggested: 20 (or 0.2) for WGS and 30 (or 0.3) for WES."}
   mate_orientation_sample: {type: ['null', {type: enum, name: mate_orientation_sample, symbols: ["0", "FR", "RF", "FF"]}], default: "FR", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)"}
   capture_regions: {type: ['null', File], doc: "If not WGS, provide "}
   indexed_reference_fasta: {type: File, secondaryFiles: [.fai]}
