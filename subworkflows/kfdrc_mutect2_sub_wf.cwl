@@ -199,7 +199,7 @@ steps:
 
   rename_vcf_samples:
     when: $(inputs.old_tumor_name != null)
-    run: ../kf-somatic-workflow/tools/bcftools_reheader_vcf.cwl
+    run: ../tools/bcftools_reheader_vcf.cwl
     in:
       input_vcf: filter_mutect2_vcf/filtered_vcf
       input_normal_name: input_normal_name

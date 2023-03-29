@@ -15,15 +15,15 @@ arguments:
     shellQuote: false
     valueFrom: >-
       ${
-        if (inputs.input_normal_name === null && inputs.input_tumor_name === null){
+        if (!inputs.input_normal_name && !inputs.input_tumor_name){
           var err = '>&2 echo "Need to give at least one of normal name or tumor name"; exit 1;'
           return err;
         }
         var cmd = "";
-        if (inputs.input_normal_name !== null){
+        if (inputs.input_normal_name){
           cmd += 'echo ' + inputs.input_normal_name + ' >> sample_list.txt;'
         }
-        if (inputs.input_tumor_name !== null){
+        if (inputs.input_tumor_name){
           cmd += 'echo ' + inputs.input_tumor_name + ' >> sample_list.txt;'
         }
         return cmd;
@@ -41,3 +41,7 @@ outputs:
     outputBinding:
       glob: '*.vcf.gz'
     secondaryFiles: [.tbi]
+  sample_list:
+    type: File
+    outputBinding:
+      glob: 'sample_list.txt'
