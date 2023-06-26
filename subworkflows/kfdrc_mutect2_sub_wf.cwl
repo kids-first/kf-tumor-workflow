@@ -74,6 +74,7 @@ inputs:
   gatk_filter_expression: {type: 'string[]', doc: "Array of filter expressions to establish criteria to tag variants with. See https://gatk.broadinstitute.org/hc/en-us/articles/360036730071-VariantFiltration, recommend: \"vc.getGenotype('\" + inputs.input_normal_name + \"').getDP() <= 7\"), \"AF > 0.001\"]"}
   disable_hotspot_annotation: { type: 'boolean?', doc: "Disable Hotspot Annotation and skip this task.", default: false }
   maf_center: {type: 'string?', doc: "Sequencing center of variant called", default: "."}
+  custom_enst: { type: 'File?', doc: "Use a file with ens tx IDs for each gene to override VEP PICK" }
 
   # Resource Control
   mutect_cores: { type: 'int?' }
@@ -238,22 +239,13 @@ steps:
         pickValue: first_non_null
     out: [output]
 
-  gatk_selectvariants_mutect2:
-    run: ../tools/gatk_selectvariants.cwl
-    in:
-      input_vcf:
-        source: [gatk_filteralignmentartifacts/output, pickvalue_workaround_rename/output]
-        pickValue: first_non_null
-      output_basename: output_basename
-      tool_name: tool_name
-      mode: select_vars_mode
-    out: [pass_vcf]
-
   annotate:
     run: ../kf-somatic-workflow/workflow/kfdrc_annot_vcf_wf.cwl
     in:
       indexed_reference_fasta: indexed_reference_fasta
-      input_vcf: gatk_selectvariants_mutect2/pass_vcf
+      input_vcf:
+        source: [gatk_filteralignmentartifacts/output, pickvalue_workaround_rename/output]
+        pickValue: first_non_null
       input_tumor_name: input_tumor_name
       input_normal_name:
         source: input_normal_name
@@ -284,6 +276,7 @@ steps:
       protein_snv_hotspots: protein_snv_hotspots
       protein_indel_hotspots: protein_indel_hotspots
       maf_center: maf_center
+      custom_enst: custom_enst
       output_basename: output_basename
       tool_name: tool_name
     out: [annotated_protected, annotated_public]
