@@ -87,8 +87,7 @@ inputs:
 
 outputs:
   mutect2_filtered_stats: { type: 'File', outputSource: filter_mutect2_vcf/stats_table }
-  mutect2_filtered_vcf: { type: 'File', outputSource: pickvalue_workaround_artifacts/output }
-  mutect2_protected_outputs: {type: 'File[]', outputSource: annotate/annotated_protected}
+  mutect2_protected_outputs: { type: 'File[]', outputSource: annotate/annotated_protected }
   mutect2_public_outputs: {type: 'File[]', outputSource: annotate/annotated_public}
   mutect2_bam: { type: 'File?', outputSource: gatk_gathersortindexbams/output }
 

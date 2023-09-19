@@ -47,7 +47,7 @@ doc: |
   ## Annotation
   __Requires `run_annotation` set to `true`__
 
-  - SelectVariants (PASS)
+  - SelectVariants (PASS|HotSpotAllele=1)
   - vt normalize VCF
   - bcftools strip annotations
   - add strelka2 standard fields (Requires add_common_fields set to true; Not used for Mutect VCFs)
@@ -237,11 +237,8 @@ inputs:
       \ GATK FilterAlignmentArtifacts (hard-capped)"}
 
 outputs:
-  mutect2_prepass_vcf: {type: 'File', outputSource: run_mutect2/mutect2_filtered_vcf,
-    doc: "VCF with SNV, MNV, and INDEL variant calls."}
-  mutect2_protected_outputs: {type: 'File[]?', outputSource: run_mutect2/mutect2_protected_outputs,
-    doc: "Array of files containing MAF format of PASS hits, PASS VCF with annotation\
-      \ pipeline soft FILTER-added values, and VCF index"}
+  mutect2_protected_outputs: {type: 'File[]?', outputSource: run_mutect2/mutect2_filtered_vcf,
+    doc: "VCF with SNV, MNV, and INDEL variant calls and of pipeline soft FILTER-added values in MAF and  VCF format with annotation, VCF index, and MAF format output"}
   mutect2_public_outputs: {type: 'File[]?', outputSource: run_mutect2/mutect2_public_outputs,
     doc: "Protected outputs, except MAF and VCF have had entries with soft FILTER\
       \ values removed"}
@@ -345,7 +342,7 @@ steps:
       filteralignmentartifacts_memory: filteralignmentartifacts_memory
       tool_name: tool_name
       output_basename: output_basename
-    out: [mutect2_filtered_stats, mutect2_filtered_vcf, mutect2_protected_outputs,
+    out: [mutect2_filtered_stats, mutect2_filtered_vcf,
       mutect2_public_outputs, mutect2_bam]
 
 $namespaces:

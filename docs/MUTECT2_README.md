@@ -42,7 +42,7 @@ __Requires `bwa_mem_index_image` input__
 ## Annotation
 __Requires `run_annotation` set to `true`__
 
-- SelectVariants (PASS)
+- SelectVariants (PASS|HotSpotAllele=1)
 - vt normalize VCF
 - bcftools strip annotations
 - add strelka2 standard fields (Requires add_common_fields set to true; Not used for Mutect VCFs)
