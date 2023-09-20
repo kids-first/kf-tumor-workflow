@@ -47,7 +47,7 @@ doc: |
   ## Annotation
   __Requires `run_annotation` set to `true`__
 
-  - SelectVariants (PASS)
+  - SelectVariants (PASS|HotSpotAllele=1)
   - vt normalize VCF
   - bcftools strip annotations
   - add strelka2 standard fields (Requires add_common_fields set to true; Not used for Mutect VCFs)
@@ -199,8 +199,14 @@ inputs:
 
   # annotation vars
   genomic_hotspots: { type: 'File[]?', doc: "Tab-delimited BED formatted file(s) containing hg38 genomic positions corresponding to hotspots", "sbg:suggestedValue": [{class: File, path: 607713829360f10e3982a423, name: tert.bed}] }
-  protein_snv_hotspots: { type: 'File[]?', doc: "Column-name-containing, tab-delimited file(s) containing protein names and amino acid positions corresponding to hotspots", "sbg:suggestedValue": [{class: File, path: 607713829360f10e3982a426, name: protein_snv_cancer_hotspots_v2.tsv}] }
-  protein_indel_hotspots: { type: 'File[]?', doc: "Column-name-containing, tab-delimited file(s) containing protein names and amino acid position ranges corresponding to hotspots", "sbg:suggestedValue": [{class: File, path: 607713829360f10e3982a424, name: protein_indel_cancer_hotspots_v2.tsv}] }
+  protein_snv_hotspots: {type: 'File[]?', doc: "Column-name-containing, tab-delimited\
+      \ file(s) containing protein names and amino acid positions corresponding to\
+      \ hotspots", "sbg:suggestedValue": [{class: File, path: 645919782fe81458768c552c,
+        name: protein_snv_cancer_hotspots_v2.ENS105_liftover.tsv}]}
+  protein_indel_hotspots: {type: 'File[]?', doc: "Column-name-containing, tab-delimited\
+      \ file(s) containing protein names and amino acid position ranges corresponding\
+      \ to hotspots", "sbg:suggestedValue": [{class: File, path: 645919782fe81458768c552d,
+        name: protein_indel_cancer_hotspots_v2.ENS105_liftover.tsv}]}
   retain_info: {type: 'string?', doc: "csv string with INFO fields that you want to keep", default: "gnomad_3_1_1_AC,gnomad_3_1_1_AN,gnomad_3_1_1_AF,gnomad_3_1_1_nhomalt,gnomad_3_1_1_AC_popmax,gnomad_3_1_1_AN_popmax,gnomad_3_1_1_AF_popmax,gnomad_3_1_1_nhomalt_popmax,gnomad_3_1_1_AC_controls_and_biobanks,gnomad_3_1_1_AN_controls_and_biobanks,gnomad_3_1_1_AF_controls_and_biobanks,gnomad_3_1_1_AF_non_cancer,gnomad_3_1_1_primate_ai_score,gnomad_3_1_1_splice_ai_consequence,gnomad_3_1_1_AC,gnomad_3_1_1_AN,gnomad_3_1_1_AF,gnomad_3_1_1_nhomalt,gnomad_3_1_1_AC_popmax,gnomad_3_1_1_AN_popmax,gnomad_3_1_1_AF_popmax,gnomad_3_1_1_nhomalt_popmax,gnomad_3_1_1_AC_controls_and_biobanks,gnomad_3_1_1_AN_controls_and_biobanks,gnomad_3_1_1_AF_controls_and_biobanks,gnomad_3_1_1_AF_non_cancer,gnomad_3_1_1_primate_ai_score,gnomad_3_1_1_splice_ai_consequence,MBQ,TLOD,HotSpotAllele"}
   retain_fmt: {type: 'string?', doc: "csv string with FORMAT fields that you want to keep"}
   retain_ann: { type: 'string?', doc: "csv string of annotations (within the VEP CSQ/ANN) to retain as extra columns in MAF", default: "HGVSg" }
@@ -214,6 +220,8 @@ inputs:
   gatk_filter_expression: {type: 'string[]', doc: "Array of filter expressions to establish criteria to tag variants with. See https://gatk.broadinstitute.org/hc/en-us/articles/360036730071-VariantFiltration, recommend: \"vc.getGenotype('\" + inputs.input_normal_name + \"').getDP() <= 7\"), \"gnomad_3_1_1_AF > 0.001\"]"}
   disable_hotspot_annotation: { type: 'boolean?', doc: "Disable Hotspot Annotation and skip this task.", default: false }
   maf_center: {type: 'string?', doc: "Sequencing center of variant called", default: "."}
+  custom_enst: { type: 'File?', doc: "Use a file with ens tx IDs for each gene to override VEP PICK", "sbg:suggestedValue": {class: File, path: 6480c8a61dfc710d24a3a368,
+        name: kf_isoform_override.tsv} }
 
   # Resource Control
   mutect_cores: {type: 'int?', doc: "CPUs to allocate to GATK Mutect2"}
@@ -229,11 +237,8 @@ inputs:
       \ GATK FilterAlignmentArtifacts (hard-capped)"}
 
 outputs:
-  mutect2_prepass_vcf: {type: 'File', outputSource: run_mutect2/mutect2_filtered_vcf,
-    doc: "VCF with SNV, MNV, and INDEL variant calls."}
-  mutect2_protected_outputs: {type: 'File[]?', outputSource: run_mutect2/mutect2_protected_outputs,
-    doc: "Array of files containing MAF format of PASS hits, PASS VCF with annotation\
-      \ pipeline soft FILTER-added values, and VCF index"}
+  mutect2_protected_outputs: {type: 'File[]?', outputSource: run_mutect2/mutect2_filtered_vcf,
+    doc: "VCF with SNV, MNV, and INDEL variant calls and of pipeline soft FILTER-added values in MAF and  VCF format with annotation, VCF index, and MAF format output"}
   mutect2_public_outputs: {type: 'File[]?', outputSource: run_mutect2/mutect2_public_outputs,
     doc: "Protected outputs, except MAF and VCF have had entries with soft FILTER\
       \ values removed"}
@@ -324,6 +329,7 @@ steps:
       protein_snv_hotspots: protein_snv_hotspots
       protein_indel_hotspots: protein_indel_hotspots
       maf_center: maf_center
+      custom_enst: custom_enst
       bwa_mem_index_image: bwa_mem_index_image
       make_bamout: make_bamout
       run_orientation_bias_mixture_model_filter: run_orientation_bias_mixture_model_filter
@@ -336,7 +342,7 @@ steps:
       filteralignmentartifacts_memory: filteralignmentartifacts_memory
       tool_name: tool_name
       output_basename: output_basename
-    out: [mutect2_filtered_stats, mutect2_filtered_vcf, mutect2_protected_outputs,
+    out: [mutect2_filtered_stats, mutect2_filtered_vcf,
       mutect2_public_outputs, mutect2_bam]
 
 $namespaces:
