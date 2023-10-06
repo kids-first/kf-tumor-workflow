@@ -5,7 +5,7 @@ requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/gatk:4.1.1.0'
+    dockerPull: 'broadinstitute/gatk:4.2.0.0'
   - class: ResourceRequirement
     ramMin: ${ return inputs.max_memory * 1000 }
     coresMin: $(inputs.cores)
@@ -14,7 +14,7 @@ arguments:
   - position: 0
     shellQuote: false
     valueFrom: >-
-      /gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" FilterMutectCalls
+      gatk --java-options "-Xmx${return Math.floor(inputs.max_memory*1000/1.074-1)}m" FilterMutectCalls
 
 inputs:
   output_vcf_name: { type: 'string', inputBinding: { prefix: "--output", position: 2 }, doc: "Name of the output filtered VCF file" }
