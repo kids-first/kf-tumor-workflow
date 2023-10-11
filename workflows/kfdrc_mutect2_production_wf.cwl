@@ -237,7 +237,7 @@ inputs:
       \ GATK FilterAlignmentArtifacts (hard-capped)"}
 
 outputs:
-  mutect2_protected_outputs: {type: 'File[]?', outputSource: run_mutect2/mutect2_filtered_vcf,
+  mutect2_protected_outputs: {type: 'File[]?', outputSource: run_mutect2/mutect2_protected_outputs,
     doc: "VCF with SNV, MNV, and INDEL variant calls and of pipeline soft FILTER-added values in MAF and  VCF format with annotation, VCF index, and MAF format output"}
   mutect2_public_outputs: {type: 'File[]?', outputSource: run_mutect2/mutect2_public_outputs,
     doc: "Protected outputs, except MAF and VCF have had entries with soft FILTER\
@@ -342,7 +342,7 @@ steps:
       filteralignmentartifacts_memory: filteralignmentartifacts_memory
       tool_name: tool_name
       output_basename: output_basename
-    out: [mutect2_filtered_stats, mutect2_filtered_vcf,
+    out: [mutect2_filtered_stats, mutect2_protected_outputs,
       mutect2_public_outputs, mutect2_bam]
 
 $namespaces:
@@ -363,5 +363,5 @@ hints:
 - VCF
 
 "sbg:links":
-- id: 'https://github.com/kids-first/kf-tumor-workflow/tree/v0.2.0-beta'
+- id: 'https://github.com/kids-first/kf-tumor-workflow/tree/v0.4.1-beta'
   label: github-release
