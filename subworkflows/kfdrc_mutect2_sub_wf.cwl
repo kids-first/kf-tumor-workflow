@@ -7,6 +7,7 @@ requirements:
   - class: MultipleInputFeatureRequirement
   - class: SubworkflowFeatureRequirement
   - class: InlineJavascriptRequirement
+  - class: StepInputExpressionRequirement
 
 inputs:
   # MultiStep
@@ -207,19 +208,13 @@ steps:
       old_tumor_name: old_tumor_name
     out: [reheadered_vcf]
 
-  pickvalue_workaround_rename:
-    run: ../kf-somatic-workflow/tools/expression_pickvalue_workaround.cwl
-    in:
-      input_file:
-        source: [rename_vcf_samples/reheadered_vcf, filter_mutect2_vcf/filtered_vcf]
-        pickValue: first_non_null
-    out: [output]
-
   gatk_filteralignmentartifacts:
     run: ../tools/gatk_filteralignmentartifacts.cwl
     when: $(inputs.bwa_mem_index_image != null)
     in:
-      input_vcf: pickvalue_workaround_rename/output
+      input_vcf:
+        source: [rename_vcf_samples/reheadered_vcf, filter_mutect2_vcf/filtered_vcf]
+        pickValue: first_non_null
       reference: indexed_reference_fasta
       input_reads: input_tumor_aligned
       bwa_mem_index_image: bwa_mem_index_image
@@ -230,20 +225,12 @@ steps:
       max_memory: filteralignmentartifacts_memory
     out: [output]
 
-  pickvalue_workaround_artifacts:
-    run: ../kf-somatic-workflow/tools/expression_pickvalue_workaround.cwl
-    in:
-      input_file:
-        source: [gatk_filteralignmentartifacts/output, pickvalue_workaround_rename/output]
-        pickValue: first_non_null
-    out: [output]
-
   annotate:
-    run: ../kf-somatic-workflow/workflow/kfdrc_annot_vcf_wf.cwl
+    run: ../kf-annotation-tools/workflows/kfdrc-somatic-snv-annot-workflow.cwl
     in:
       indexed_reference_fasta: indexed_reference_fasta
       input_vcf:
-        source: [gatk_filteralignmentartifacts/output, pickvalue_workaround_rename/output]
+        source: [gatk_filteralignmentartifacts/output, rename_vcf_samples/reheadered_vcf, filter_mutect2_vcf/filtered_vcf]
         pickValue: first_non_null
       input_tumor_name: input_tumor_name
       input_normal_name:

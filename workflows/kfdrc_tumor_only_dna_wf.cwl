@@ -177,8 +177,8 @@ inputs:
       \ Use N if you want to skip this or have a WGS run"}
   b_allele: {type: 'File?', doc: "germline calls, needed for BAF.  GATK HC VQSR input\
       \ recommended. Tool will prefilter for germline and pass if expression given",
-    sbg:suggestedValue: {class: File, path: 6509b6a37f6417197fc158fd, name: dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.common_snps.vcf.gz}}
-  b_allele_index: {type: 'File?', doc: "Tabix index for b_allele", sbg:suggestedValue: {
+    "sbg:suggestedValue": {class: File, path: 6509b6a37f6417197fc158fd, name: dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.common_snps.vcf.gz}}
+  b_allele_index: {type: 'File?', doc: "Tabix index for b_allele", "sbg:suggestedValue": {
       class: File, path: 6509b6a37f6417197fc158fc, name: dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.common_snps.vcf.gz.tbi}}
   cfree_coeff_var: {type: 'float?', default: 0.05, doc: "Coefficient of variation\
       \ to set window size. Default 0.05 recommended"}
@@ -460,7 +460,7 @@ steps:
       manta_cores: manta_cores
     out: [manta_prepass_vcf, manta_pass_vcf, manta_small_indels]
   run_annotsv:
-    run: ../kf-somatic-workflow/tools/annotsv.cwl
+    run: ../tools/annotsv.cwl
     in:
       annotations_dir_tgz: annotsv_annotations_dir_tgz
       sv_input_file: run_manta/manta_pass_vcf
