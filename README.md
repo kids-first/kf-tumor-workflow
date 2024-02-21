@@ -48,7 +48,7 @@ Most inputs have recommended values that should auto import for both files and p
  - `genomic_hotspots`: tert.bed # bed file with TERT gene promoter region
  - `protein_snv_hotspots`: protein_snv_cancer_hotspots_v2.ENS105_liftover.tsv
  - `protein_indel_hotspots`: protein_indel_cancer_hotspots_v2.ENS105_liftover.tsv
- - `bcftools_annot_vcf`: gnomad_3.1.1.vwb_subset.vcf.gz # An export from the Variant Workbench of WGS gnomAD v3.1.1
+ - `echtvar_anno_zips`: gnomad.v3.1.1.custom.echtvar.zip
 
 ### Necessary for user to define:
  - `input_tumor_aligned`: <input bam or cram file, indexed>
@@ -62,7 +62,7 @@ Most inputs have recommended values that should auto import for both files and p
  - `cfree_ploidy`: Array of ploidy possibilities for ControlFreeC to try. Recommend 2-4
  - `unpadded_capture_regions`: if WXS, for CNV, capture regions with NO padding
  - `gatk_filter_name`: ["GNOMAD_AF_HIGH"] # if annotating SNVs, highly recommended
- - `gatk_filter_expression`: ["gnomad_3_1_1_AF > 0.001"] # if annotating SNVs, highly recommended
+ - `gatk_filter_expression`: ["gnomad_3_1_1_AF != '.' && gnomad_3_1_1_AF > 0.001 && gnomad_3_1_1_FILTER == 'PASS'"] # if annotating SNVs, highly recommended
  - `output_basename`: String value to use as basename for outputs
 
 ## Output Files
