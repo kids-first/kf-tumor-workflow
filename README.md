@@ -14,10 +14,10 @@ It can also be used to process PDX data by first pre-processing reads using the 
 
 ## Import info on cloning the git repo
 This repo takes advantage of the git submodule feature.
-The SNV annotation workflow is maintained in a different repo.
-Therefore, in order to get the rest of the code after cloning, you need to run: `git submodule init` and `git submodule update`.
-Currently this workflow uses tools from `v4.3.6` of the somatic workflow.
-If that is updated, submodule should be as well.
+The SNV annotation workflow is maintained in a different repo [here](https://github.com/kids-first/kf-annotation-tools).
+Therefore, in order to get the code for a submodule you can either:
+1. Clone the repository recusively with `git clone --recursive`
+2. After cloning, run: `git submodule init && git submodule update`
 More info on how this worked [here](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
 
 ## Main workflow
@@ -26,7 +26,7 @@ The wrapper workflow that runs most of the tools is `workflows/kfdrc_tumor_only_
 ## Tools run
 SNV
  - Mutect2 from GATK 4.2.2.0
- - Annotation run using same as [Kids First DRC Somatic Variant Annotation Workflow](https://github.com/kids-first/kf-somatic-workflow/blob/v4.3.0/docs/kfdrc_annotation_wf.md)
+ - Annotation run using the [Kids First DRC Somatic SNV Annotation Workflow](https://github.com/kids-first/kf-annotation-tools/blob/master/workflows/kfdrc-somatic-snv-annot-workflow.cwl)
 CNV
  - ControlFreeC v11.6
 SV
