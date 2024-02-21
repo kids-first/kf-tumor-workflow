@@ -1,6 +1,6 @@
-# Kids First Tumor Only Pipeline
+# Kids First DRC Tumor Only Pipeline
 
-This repo contains tools and workflows for processing of tumor-only samples.
+This repository contains tools and workflows for processing of tumor-only samples.
 It is currently in beta phase.
 Much of the components have been borrowed from the Kids First Somatic Workflow.
 It can also be used to process PDX data by first pre-processing reads using the Xenome tool, explained more here in documentation.
@@ -13,27 +13,27 @@ It can also be used to process PDX data by first pre-processing reads using the 
 </p>
 
 ## Import info on cloning the git repo
-This repo takes advantage of the git submodule feature.
-The SNV annotation workflow is maintained in a different repo [here](https://github.com/kids-first/kf-annotation-tools).
+This repository takes advantage of the git submodule feature.
+The Single Nucleotide Variant annotation workflow is maintained in our [Annotation Tools Repository](https://github.com/kids-first/kf-annotation-tools).
 Therefore, in order to get the code for a submodule you can either:
-1. Clone the repository recusively with `git clone --recursive`
+1. Clone the repository recursively with `git clone --recursive`
 2. After cloning, run: `git submodule init && git submodule update`
 More info on how this worked [here](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
 
 ## Main workflow
-The wrapper workflow that runs most of the tools is `workflows/kfdrc_tumor_only_dna_wf.cwl`.
+The wrapper workflow that runs most of the tools is [found here](./workflows/kfdrc_tumor_only_dna_wf.cwl).
 
 ## Tools run
-SNV
+### Single Nucleotide Variant (SNV)
  - Mutect2 from GATK 4.2.2.0
- - Annotation run using the [Kids First DRC Somatic SNV Annotation Workflow](https://github.com/kids-first/kf-annotation-tools/blob/master/workflows/kfdrc-somatic-snv-annot-workflow.cwl)
-CNV
- - ControlFreeC v11.6
-SV
+ - Annotation using the [Kids First DRC Somatic SNV Annotation Workflow](https://github.com/kids-first/kf-annotation-tools/blob/master/workflows/kfdrc-somatic-snv-annot-workflow.cwl)
+### Copy Number Variant (CNV)
+ - ControlFREEC v11.6
+### Structural Variant (SV)
  - Manta v1.4.0
 
 ## Inputs
-Most inputs have recommended values that should auto import for both files and parameters
+Most inputs have recommended values that should auto import both files and parameters
 ### Recommended file/param defaults:
  - `reference_fasta`: Homo_sapiens_assembly38.fasta
  - `reference_fai`: Homo_sapiens_assembly38.fasta.fai
@@ -49,36 +49,34 @@ Most inputs have recommended values that should auto import for both files and p
  - `protein_snv_hotspots`: protein_snv_cancer_hotspots_v2.ENS105_liftover.tsv
  - `protein_indel_hotspots`: protein_indel_cancer_hotspots_v2.ENS105_liftover.tsv
  - `echtvar_anno_zips`: gnomad.v3.1.1.custom.echtvar.zip
-
 ### Necessary for user to define:
- - `input_tumor_aligned`: <input bam or cram file, indexed>
- - `input_tumor_name`: sample name, should match what is in bam/cram
+ - `input_tumor_aligned`: <input BAM or CRAM file, indexed>
+ - `input_tumor_name`: sample name, should match what is in BAM/CRAM
  - `output_basename`: A file name prefix for all output files
- - `wgs_or_wxs`: Choose whether input is `WGS` or `WXS`. `WXS` works for both whole exome and panel
+ - `wgs_or_wxs`: Choose whether input is Whole Genome Sequencing (WGS) or Whole Exome Sequencing or Panel (WXS)
  - `wgs_calling_interval_list`: if WGS, recommend wgs_canonical_calling_regions.hg38.bed
  - `padded_capture_regions`: if WXS, recommend 100bp padded intervals of capture kit used
  - `i_flag`: for CNV calling, whether to intersect b allele file. Set to `N` for WGS or to skip.
  - `cfree_sex`: for CNV calling, set to XX for female, XY for male
- - `cfree_ploidy`: Array of ploidy possibilities for ControlFreeC to try. Recommend 2-4
+ - `cfree_ploidy`: Array of ploidy possibilities for ControlFREEC to try. Recommend 2-4
  - `unpadded_capture_regions`: if WXS, for CNV, capture regions with NO padding
- - `gatk_filter_name`: ["GNOMAD_AF_HIGH"] # if annotating SNVs, highly recommended
- - `gatk_filter_expression`: ["gnomad_3_1_1_AF != '.' && gnomad_3_1_1_AF > 0.001 && gnomad_3_1_1_FILTER == 'PASS'"] # if annotating SNVs, highly recommended
+ - `gatk_filter_name`: `["GNOMAD_AF_HIGH"]` Highly recommended for SNV annotations
+ - `gatk_filter_expression`: `["gnomad_3_1_1_AF != '.' && gnomad_3_1_1_AF > 0.001 && gnomad_3_1_1_FILTER == 'PASS'"]` Highly recommended for SNV annotations
  - `output_basename`: String value to use as basename for outputs
 
 ## Output Files
-
 ### Mutect2
  - `mutect2_protected_outputs`: VCF with SNV, MNV, and INDEL variant calls and of pipeline soft FILTER-added values in MAF and  VCF format with annotation, VCF index, and MAF format output
  - `mutect2_public_outputs`: Protected outputs, except MAF and VCF have had entries with soft FILTER values removed
  - `mutect2_bam`: BAM generated will be written as BAM. Really for debugging purposes only
-### ControlFreeC CNV
+### ControlFREEC CNV
  - `ctrlfreec_pval`: Copy number call with GT (if BAF provided) and p values. Most people want this
  - `ctrlfreec_config`: Config file used to run
  - `ctrlfreec_pngs`: Visualization of CN and BAF
  - `ctrlfreec_bam_ratio`: Calls as log2 ratio
- - `ctrlfreec_bam_seg`: Custom made microarray-style seg file
+ - `ctrlfreec_bam_seg`: Custom made microarray-style SEG file
  - `ctrlfreec_baf`: b allele frequency file
- - `ctrlfreec_info`: Calculated inforamtion, like ploidy, if a range was given 
+ - `ctrlfreec_info`: Calculated information, like ploidy, if a range was given 
 ### Manta SV
  - `manta_pass_vcf`: VCF file with SV calls that PASS
  - `manta_prepass_vcf`: VCF file with all SV calls
