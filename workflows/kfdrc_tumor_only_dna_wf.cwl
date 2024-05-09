@@ -161,7 +161,7 @@ inputs:
   mate_copynumber_file_sample: {type: 'File?', doc: "Tumor cpn file from previous
       run. If used, will override bam use"}
   gem_mappability_file: {type: 'File?', doc: "GEM mappability file to make read count
-      adjustments with"}
+      adjustments with", "sbg:suggestedValue": {class: File, path: 663d2bcc27374715fccd8c68, name: hg38_canonical_150.mappability}}
   min_subclone_presence: {type: 'int?', doc: "Tool default 100 (meaning \"do not look
       for subclones\"). Suggested: 20 (or 0.2) for WGS and 30 (or 0.3) for WES."}
   cfree_chr_len: {type: 'File', doc: "file with chromosome lengths", "sbg:suggestedValue": {
@@ -175,9 +175,9 @@ inputs:
       Use N if you want to skip this or have a WGS run"}
   b_allele: {type: 'File?', doc: "germline calls, needed for BAF.  GATK HC VQSR input
       recommended. Tool will prefilter for germline and pass if expression given",
-    "sbg:suggestedValue": {class: File, path: 6509b6a37f6417197fc158fd, name: dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.common_snps.vcf.gz}}
+    "sbg:suggestedValue": {class: File, path: 663d2bcc27374715fccd8c67, name: dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.common_snps.vcf.gz}}
   b_allele_index: {type: 'File?', doc: "Tabix index for b_allele", "sbg:suggestedValue": {
-      class: File, path: 6509b6a37f6417197fc158fc, name: dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.common_snps.vcf.gz.tbi}}
+      class: File, path: 663d2bcc27374715fccd8c66, name: dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.common_snps.vcf.gz.tbi}}
   cfree_coeff_var: {type: 'float?', default: 0.05, doc: "Coefficient of variation
       to set window size. Default 0.05 recommended"}
   cfree_sex: {type: ['null', {type: enum, name: sex, symbols: ["XX", "XY"]}], doc: "If
@@ -216,10 +216,10 @@ inputs:
         class: File, path: 607713829360f10e3982a423, name: tert.bed}]}
   protein_snv_hotspots: {type: 'File[]?', doc: "Column-name-containing, tab-delimited
       file(s) containing protein names and amino acid positions corresponding to hotspots",
-    "sbg:suggestedValue": [{class: File, path: 645919782fe81458768c552c, name: protein_snv_cancer_hotspots_v2.ENS105_liftover.tsv}]}
+    "sbg:suggestedValue": [{class: File, path: 663d2bcc27374715fccd8c6a, name: protein_snv_cancer_hotspots_v2.ENS105_liftover.tsv}]}
   protein_indel_hotspots: {type: 'File[]?', doc: "Column-name-containing, tab-delimited
       file(s) containing protein names and amino acid position ranges corresponding
-      to hotspots", "sbg:suggestedValue": [{class: File, path: 645919782fe81458768c552d,
+      to hotspots", "sbg:suggestedValue": [{class: File, path: 663d2bcc27374715fccd8c6f,
         name: protein_indel_cancer_hotspots_v2.ENS105_liftover.tsv}]}
   retain_info: {type: 'string?', doc: "csv string with INFO fields that you want to
       keep", default: "gnomad_3_1_1_AC,gnomad_3_1_1_AN,gnomad_3_1_1_AF,gnomad_3_1_1_nhomalt,gnomad_3_1_1_AC_popmax,gnomad_3_1_1_AN_popmax,gnomad_3_1_1_AF_popmax,gnomad_3_1_1_nhomalt_popmax,gnomad_3_1_1_AC_controls_and_biobanks,gnomad_3_1_1_AN_controls_and_biobanks,gnomad_3_1_1_AF_controls_and_biobanks,gnomad_3_1_1_AF_non_cancer,gnomad_3_1_1_primate_ai_score,gnomad_3_1_1_splice_ai_consequence,gnomad_3_1_1_AF_non_cancer_afr,gnomad_3_1_1_AF_non_cancer_ami,gnomad_3_1_1_AF_non_cancer_asj,gnomad_3_1_1_AF_non_cancer_eas,gnomad_3_1_1_AF_non_cancer_fin,gnomad_3_1_1_AF_non_cancer_mid,gnomad_3_1_1_AF_non_cancer_nfe,gnomad_3_1_1_AF_non_cancer_oth,gnomad_3_1_1_AF_non_cancer_raw,gnomad_3_1_1_AF_non_cancer_sas,gnomad_3_1_1_AF_non_cancer_amr,gnomad_3_1_1_AF_non_cancer_popmax,gnomad_3_1_1_AF_non_cancer_all_popmax,gnomad_3_1_1_FILTER,MBQ,TLOD,HotSpotAllele"}
@@ -243,7 +243,7 @@ inputs:
       and skip this task.", default: false}
   maf_center: {type: 'string?', doc: "Sequencing center of variant called", default: "."}
   custom_enst: {type: 'File?', doc: "Use a file with ens tx IDs for each gene to override
-      VEP PICK", "sbg:suggestedValue": {class: File, path: 6480c8a61dfc710d24a3a368,
+      VEP PICK", "sbg:suggestedValue": {class: File, path: 663d2bcc27374715fccd8c65,
       name: kf_isoform_override.tsv}}
   mutect_cores: {type: 'int?', doc: "CPUs to allocate to GATK Mutect2"}
   mutect_memory: {type: 'int?', doc: "GB of memory to allocate to GATK Mutect2 (hard-capped)"}
