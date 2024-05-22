@@ -35,35 +35,37 @@ The wrapper workflow that runs most of the tools is [found here](./workflows/kfd
 ## Inputs
 Most inputs have recommended values that should auto import both files and parameters
 ### Recommended file/param defaults:
- - `reference_fasta`: Homo_sapiens_assembly38.fasta
- - `reference_fai`: Homo_sapiens_assembly38.fasta.fai
- - `reference_dict`: Homo_sapiens_assembly38.dict
+ - `indexed_reference_fasta`: FAI and DICT indexed Homo_sapiens_assembly38.fasta
  - `mutect2_af_only_gnomad_vcf`: af-only-gnomad.hg38.vcf.gz
  - `mutect2_exac_common_vcf`: small_exac_common_3.hg38.vcf.gz
  - `gem_mappability_file`: hg38_canonical_150.mappability # will need note on file generation
- - `cfree_chr_len`: hs38_chr.len
  - `b_allele`: dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.common_snps.vcf.gz # will need note on file generation
- - `hg38_strelka_bed`: hg38_strelka.bed.gz
  - `vep_cache`: homo_sapiens_merged_vep_105_indexed_GRCh38.tar.gz
  - `genomic_hotspots`: tert.bed # bed file with TERT gene promoter region
  - `protein_snv_hotspots`: protein_snv_cancer_hotspots_v2.ENS105_liftover.tsv
  - `protein_indel_hotspots`: protein_indel_cancer_hotspots_v2.ENS105_liftover.tsv
- - `echtvar_anno_zips`: gnom ad.v3.1.1.custom.echtvar.zip
+ - `echtvar_anno_zips`: gnomad.v3.1.1.custom.echtvar.zip
 ### Necessary for user to define:
- - `input_tumor_aligned`: <input BAM or CRAM file, indexed>
- - `input_tumor_name`: sample name, should match what is in BAM/CRAM
+ - `input_tumor_aligned`: Indexed BAM/CRAM/SAM file
+ - `input_tumor_name`: sample name, should match what is in BAM/CRAM/SAM
  - `panel_of_normals`: Mutect2 Panel of Normals
  - `output_basename`: A file name prefix for all output files
  - `wgs_or_wxs`: Choose whether input is Whole Genome Sequencing (WGS) or Whole Exome Sequencing or Panel (WXS)
- - `wgs_calling_interval_list`: if WGS, recommend wgs_canonical_calling_regions.hg38.bed
-# TODO: ADD BLACKLIST REGIONS?
- - `padded_capture_regions`: if WXS, recommend 100bp padded intervals of capture kit used
- - `i_flag`: for CNV calling, whether to intersect b allele file. Set to `N` for WGS or to skip.
+ - `calling_regions`:
+    - For WGS: wgs_canonical_calling_regions.hg38.bed
+    - For WXS: Unpadded experimental bait capture regions
+ - `blacklist_regions`:
+    - For WGS: hg38-blacklist.v2.bed.gz
+    - For WXS: none
+ - `cnv_blacklist_regions`:
+    - For WGS: somatic-hg38_CNV_and_centromere_blacklist.hg38liftover.bed (add chrY if female)
+    - For WXS: none
+ - `i_flag`: for CNV calling, whether to intersect b allele file. Set to `N` skip
  - `cfree_sex`: for CNV calling, set to XX for female, XY for male
- - `cfree_ploidy`: Array of ploidy possibilities for ControlFREEC to try. Recommend 2-4
- - `unpadded_capture_regions`: if WXS, for CNV, capture regions with NO padding
- - `gatk_filter_name`: `["GNOMAD_AF_HIGH"]` Highly recommended for SNV annotations
-# TODO: ADD AF, AD, lower gnomadAF - `gatk_filter_expression`: `["gnomad_3_1_1_AF != '.' && gnomad_3_1_1_AF > 0.001 && gnomad_3_1_1_FILTER == 'PASS'"]` Highly recommended for SNV annotations
+ - `cfree_ploidy`: Array of ploidy possibilities for ControlFREEC to try. Recommend [2,3,4]
+ - `filtermutectcalls_extra_args`: "--min-allele-fraction 0.01"
+ - `gatk_filter_name`: `["GNOMAD_AF_HIGH", "ALT_DEPTH_LOW"]`
+ - `gatk_filter_expression`: `["gnomad_3_1_1_AF != '.' && gnomad_3_1_1_AF > 0.001 && gnomad_3_1_1_FILTER == 'PASS'", "vc.getGenotype('<input_tumor_name>').getAD().1 < 1"]`
  - `output_basename`: String value to use as basename for outputs
 
 ## Output Files
@@ -78,7 +80,7 @@ Most inputs have recommended values that should auto import both files and param
  - `ctrlfreec_bam_ratio`: Calls as log2 ratio
  - `ctrlfreec_bam_seg`: Custom made microarray-style SEG file
  - `ctrlfreec_baf`: b allele frequency file
- - `ctrlfreec_info`: Calculated information, like ploidy, if a range was given 
+ - `ctrlfreec_info`: Calculated information, like ploidy, if a range was given
 ### Manta SV
  - `manta_pass_vcf`: VCF file with SV calls that PASS
  - `manta_prepass_vcf`: VCF file with all SV calls
