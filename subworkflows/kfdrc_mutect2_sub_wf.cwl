@@ -16,7 +16,7 @@ inputs:
   bed_invtl_split: { type: 'File[]', doc: "Bed file intervals passed on from and outside pre-processing step" }
   input_tumor_aligned: { type: 'File', secondaryFiles: [{ pattern: ".bai", required: false },{ pattern: "^.bai", required: false },{ pattern: ".crai", required: false },{ pattern: "^.crai", required: false }] }
   input_tumor_name: { type: 'string' }
-  old_tumor_name: { type: 'string?', doc: "If `SM:` sample name in te align file is different than `input_tumor_name`, you **must** provide it here"}
+  old_tumor_name: { type: 'string?', doc: "If `SM:` sample name in the align file is different than `input_tumor_name`, you **must** provide it here"}
   input_normal_aligned: { type: 'File?', secondaryFiles: [{ pattern: ".bai", required: false },{ pattern: "^.bai", required: false },{ pattern: ".crai", required: false },{ pattern: "^.crai", required: false }] }
   input_normal_name: { type: 'string?' }
   old_normal_name: { type: 'string?', doc: "If `SM:` sample name in te align file is different than `input_normal_name`, you **must** provide it here"}
