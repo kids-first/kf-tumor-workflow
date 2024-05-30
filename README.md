@@ -16,8 +16,8 @@ It can also be used to process PDX data by first pre-processing reads using the 
 This repository takes advantage of the git submodule feature.
 The Single Nucleotide Variant annotation workflow is maintained in our [Annotation Tools Repository](https://github.com/kids-first/kf-annotation-tools).
 Therefore, in order to get the code for a submodule you can either:
-1. Clone the repository recursively with `git clone --recursive`
-2. After cloning, run: `git submodule init && git submodule update`
+- Clone the repository recursively with `git clone --recursive`
+- After cloning, run: `git submodule init && git submodule update`
 More info on how this worked [here](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
 
 ## Main workflow
@@ -47,9 +47,8 @@ Most inputs have recommended values that should auto import both files and param
  - `echtvar_anno_zips`: gnomad.v3.1.1.custom.echtvar.zip
 ### Necessary for user to define:
  - `input_tumor_aligned`: Indexed BAM/CRAM/SAM file
- - `input_tumor_name`: sample name, should match what is in BAM/CRAM/SAM
+ - `input_tumor_name`: sample name, should match read group sample name in `input_tumor_aligned`
  - `panel_of_normals`: Mutect2 Panel of Normals
- - `output_basename`: A file name prefix for all output files
  - `wgs_or_wxs`: Choose whether input is Whole Genome Sequencing (WGS) or Whole Exome Sequencing or Panel (WXS)
  - `calling_regions`:
     - For WGS: wgs_canonical_calling_regions.hg38.bed
@@ -58,7 +57,7 @@ Most inputs have recommended values that should auto import both files and param
     - For WGS: hg38-blacklist.v2.bed.gz
     - For WXS: none
  - `cnv_blacklist_regions`:
-    - For WGS: somatic-hg38_CNV_and_centromere_blacklist.hg38liftover.bed (add chrY if female)
+    - For WGS: somatic-hg38_CNV_and_centromere_blacklist.hg38liftover.bed
     - For WXS: none
  - `i_flag`: for CNV calling, whether to intersect b allele file. Set to `N` skip
  - `cfree_sex`: for CNV calling, set to XX for female, XY for male
@@ -72,7 +71,7 @@ Most inputs have recommended values that should auto import both files and param
 ### Mutect2
  - `mutect2_protected_outputs`: VCF with SNV, MNV, and INDEL variant calls and of pipeline soft FILTER-added values in MAF and  VCF format with annotation, VCF index, and MAF format output
  - `mutect2_public_outputs`: Protected outputs, except MAF and VCF have had entries with soft FILTER values removed
- - `mutect2_bam`: BAM generated will be written as BAM. Really for debugging purposes only
+ - `mutect2_bam`: BAM generated will be written as BAM. Useful for debugging
 ### ControlFREEC CNV
  - `ctrlfreec_pval`: Copy number call with GT (if BAF provided) and p values. Most people want this
  - `ctrlfreec_config`: Config file used to run

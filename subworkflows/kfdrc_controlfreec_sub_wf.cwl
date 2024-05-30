@@ -46,14 +46,13 @@ steps:
           $(self.secondaryFiles.filter(function(e) { return e.basename.search(/.fai$/) != -1 })[0])
     out: [chrlen]
 
-  controlfreec_tumor_mini_pileup:
-    run: ../tools/control_freec_mini_pileup.cwl
+  samtools_mpileup:
+    run: ../tools/samtools_mpileup.cwl
     in:
       input_reads: input_tumor_aligned
-      threads:
-        valueFrom: $(16)
       reference: indexed_reference_fasta
       snp_vcf: b_allele
+      calling_regions: awk_chrlen_builder/chrlen
     out: [pileup]
 
   control_free_c:
@@ -64,7 +63,7 @@ steps:
       min_subclone_presence: min_subclone_presence
       mate_file_sample: input_tumor_aligned
       mate_orientation_sample: mate_orientation_sample
-      mini_pileup_sample: controlfreec_tumor_mini_pileup/pileup
+      mini_pileup_sample: samtools_mpileup/pileup
       chr_len: awk_chrlen_builder/chrlen
       ploidy: ploidy
       capture_regions:
