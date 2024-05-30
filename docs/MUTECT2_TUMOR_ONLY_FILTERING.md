@@ -51,11 +51,11 @@ Variants were considered a match if they matched all: chromosome, position, refe
 Tumor-only calling with Mutect2 is inherently very noisy. Therefore, most of our recommendations revolve around reducing
 the noise where possible. These recommendations are:
 - Restrict the callable regions with a blacklist and GDC Panel of Normals (PON)
-- Filter low support reads:
-   - Allele Depth (AD) > 0: WGS uninformative reads
-   - Variant Allele Frequency (VAF) > 1%: WXS noise
-- Filter potential germline variants with gnomAD AF < 0.00003
-- Only keep variants that have no FILTERS/are PASS
+- Remove low support reads:
+   - Allele Depth (AD) == 0: WGS uninformative reads
+   - Variant Allele Frequency (VAF) < 1%: WXS noise
+- Remove potential germline variants: gnomAD AF > 0.00003
+- Only keep variants that are PASS
 - Rescue any variants that fall in hotspot regions/genes
 
 ### Calling Parameters
@@ -84,9 +84,9 @@ we recommend removing difficult to call regions from your input intervals.
 
 ### Remove Low Support Variants
 
-Recommended Filter:
-- AD > 0
-- VAF > 0.01/1%
+Recommend remove variants with:
+- AD < 1
+- VAF < 0.01/1%
 
 In our investigation we came across a couple of unique scenarios for Mutect2 tumor-only calls. The first of these was the
 presence of variants with no read support. These would be variants where the alternative allele depth was zero. After a
@@ -110,8 +110,8 @@ filters on the data had no adverse effect on our sensitivity.
 
 ### Population Allele Frequency Filter
 
-Recommended filter:
-- gnomAD AF < 0.00003
+Recommended remove variants with:
+- gnomAD AF > 0.00003
 
 As mentioned above, several different population allele frequency databases are available and can be used for annotating
 and filtering variants. In our investigation, however, we found gnomAD to be the most impactful when it came to filtering.
@@ -127,7 +127,7 @@ an associated gnomAD AF value over 0.00003/0.003%.
 
 ### The Public File Filter: PASS or HotSpot
 
-Recommended filter:
+Recommended keep variants with:
 - FILTER = PASS | HotSpotAllele = 1
 
 The final filter we recommend is our public file filter from our somatic and germline workflows. This filter is not so
