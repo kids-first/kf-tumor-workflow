@@ -148,14 +148,15 @@ inputs:
       Do not provide unless you are absolutely certain you want to run FilterAlignmentArtifacts.", "sbg:fileTypes": "IMG"}
   mutect2_extra_args: {type: 'string?', doc: "Any additional arguments for Mutect2. See GATK documentation for all available options."}
   filtermutectcalls_extra_args: {type: 'string?', default: "--min-allele-fraction 0.01", doc: "Any additional arguments for FilterMutectCalls.
-      See GATK documentation for all available options."}
+      See GATK documentation for all available options. Recommend: --min-allele-fraction 0.01"}
   select_vars_mode: {type: ['null', {type: enum, name: select_vars_mode, symbols: ["gatk", "grep"]}], default: "gatk", doc: "Choose
       'gatk' for SelectVariants tool, or 'grep' for grep expression"}
   mate_copynumber_file_sample: {type: 'File?', doc: "Tumor cpn file from previous run. If used, will override bam use"}
-  gem_mappability_file: {type: 'File?', doc: "GEM mappability file to make read count adjustments with"}
+  gem_mappability_file: {type: 'File?', doc: "GEM mappability file to make read count adjustments with", "sbg:suggestedValue": {
+      class: File, path: 663d2bcc27374715fccd8c68, name: hg38_canonical_150.mappability}}
   min_subclone_presence: {type: 'int?', doc: "Tool default 100 (meaning \"do not look for subclones\"). Suggested: 20 (or 0.2) for
       WGS and 30 (or 0.3) for WES."}
-  cfree_ploidy: {type: 'int[]', doc: "Array of ploidy possibilities for ControlFreeC to try"}
+  cfree_ploidy: {type: 'int[]?', default: [2,3,4], doc: "Array of ploidy possibilities for ControlFreeC to try"}
   cfree_mate_orientation_sample: {type: ['null', {type: enum, name: mate_orientation_sample, symbols: ["0", "FR", "RF", "FF"]}], default: "FR",
     doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)"}
   b_allele: {type: 'File?', secondaryFiles: [{pattern: ".tbi", required: true}], doc: "germline calls, needed for BAF.  GATK HC VQSR
@@ -193,11 +194,9 @@ inputs:
   bcftools_public_filter: {type: 'string?', doc: "Will hard filter final result to create a public version", default: FILTER="PASS"|INFO/HotSpotAllele=1}
   echtvar_anno_zips: {type: 'File[]?', doc: "Annotation ZIP files for echtvar anno", "sbg:suggestedValue": [{class: File, path: 65c64d847dab7758206248c6,
         name: gnomad.v3.1.1.custom.echtvar.zip}]}
-  gatk_filter_name: {type: 'string[]', doc: "Array of names for each filter tag to add, recommend: [\"GNOMAD_AF_HIGH\", \"AF_LOW\"\
-      , \"AD_LOW\""}
+  gatk_filter_name: {type: 'string[]', doc: "Array of names for each filter tag to add, recommend: [\"GNOMAD_AF_HIGH\", \"ALT_DEPTH_LOW\"]"}
   gatk_filter_expression: {type: 'string[]', doc: "Array of filter expressions to establish criteria to tag variants with. See https://gatk.broadinstitute.org/hc/en-us/articles/360036730071-VariantFiltration,
-      recommend: \"gnomad_3_1_1_AF != '.' && gnomad_3_1_1_AF > 0.001 && gnomad_3_1_1_FILTER == 'PASS'\", \"FORMAT/AF < 0.01\", \"
-      FORMAT/AD[:1] < 1\"]"}
+      recommend: [\"gnomad_3_1_1_AF != '.' && gnomad_3_1_1_AF > 0.001 && gnomad_3_1_1_FILTER == 'PASS'\", \"vc.getGenotype('<input_tumor_name>').getAD().1 < 1\"]"}
   maf_center: {type: 'string?', doc: "Sequencing center of variant called", default: "."}
   custom_enst: {type: 'File?', doc: "Use a file with ens tx IDs for each gene to override VEP PICK", "sbg:suggestedValue": {class: File,
       path: 6480c8a61dfc710d24a3a368, name: kf_isoform_override.tsv}}
