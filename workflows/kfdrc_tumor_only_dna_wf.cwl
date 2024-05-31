@@ -115,14 +115,15 @@ inputs:
   indexed_reference_fasta: {type: 'File', secondaryFiles: [{pattern: ".fai", required: true}, {pattern: "^.dict", required: true}],
     doc: "Reference fasta to which the input reads were aligned. Must include FAI and DICT indicies", "sbg:suggestedValue": {class: File,
       path: 60639014357c3a53540ca7a3, name: Homo_sapiens_assembly38.fasta, secondaryFiles: [{class: File, path: 60639016357c3a53540ca7af,
-          name: Homo_sapiens_assembly38.fasta.fai}, {class: File, path: 60639019357c3a53540ca7e7, name: Homo_sapiens_assembly38.dict}]}}
+          name: Homo_sapiens_assembly38.fasta.fai}, {class: File, path: 60639019357c3a53540ca7e7, name: Homo_sapiens_assembly38.dict}]}, "sbg:fileTypes": "FASTA, FA"}
   calling_regions: {type: 'File', doc: "BED or INTERVALLIST file containing a set of genomic regions over which the callers will be
       run. For WGS, this should be the wgs_calling_regions.interval_list. For WXS, the user must provide the appropriate regions for
-      their analysis."}
+      their analysis.", "sbg:fileTypes": "BED, INTERVALLIST, INTERVAL_LIST"}
   blacklist_regions: {type: 'File?', doc: "BED or INTERVALLIST file containing a set of genomic regions to remove from the calling
-      regions for SNV and SV calling."}
+      regions for SNV and SV calling.", "sbg:suggestedValue": {class: File, path: 665df995a193b420129c7830, name: hg38-blacklist.v2.bed.gz}, "sbg:fileTypes": "BED, INTERVALLIST, INTERVAL_LIST"}
   cnv_blacklist_regions: {type: 'File?', doc: "BED or INTERVALLIST file containing a set of genomic regions to remove from the calling
-      regions for CNV calling only!", "sbg:suggestedValue": {class: File, path: 663d2bcc27374715fccd8c6d, name: somatic-hg38_CNV_and_centromere_blacklist.hg38liftover.list}}
+      regions for CNV calling only!", "sbg:suggestedValue": {class: File, path: 665df995a193b420129c782f, name: somatic-hg38_CNV_and_centromere_blacklist.hg38liftover.bed},
+      "sbg:fileTypes": "BED, INTERVALLIST, INTERVAL_LIST"}
   input_tumor_aligned: {type: 'File', secondaryFiles: [{pattern: ".bai", required: false}, {pattern: "^.bai", required: false}, {
         pattern: ".crai", required: false}, {pattern: "^.crai", required: false}], doc: "BAM/SAM/CRAM file containing tumor reads",
     "sbg:fileTypes": "BAM, CRAM, SAM"}
@@ -132,7 +133,8 @@ inputs:
   output_basename: {type: 'string', doc: "String value to use as basename for outputs"}
   panel_of_normals: {type: 'File?', secondaryFiles: ['.tbi'], doc: "VCF file (and index) of sites observed in normal. A panel of normals
       can be a useful (optional) input to help filter out commonly seen sequencing noise that may appear as low allele-fraction somatic
-      variants.", "sbg:fileTypes": "VCF, VCF.GZ"}
+      variants.", "sbg:suggestedValue": {class: File, path: 665df995a193b420129c7831, name: 1000g_pon.hg38.vcf.gz, secondaryFiles: [{class: File,
+         path: 665df995a193b420129c782e,  name: 1000g_pon.hg38.vcf.gz.tbi}]}, "sbg:fileTypes": "VCF, VCF.GZ"}
   mutect2_af_only_gnomad_vcf: {type: 'File', secondaryFiles: ['.tbi'], doc: "Population vcf (and index) of germline sequencing containing
       allele fractions in VCF format.", "sbg:suggestedValue": {class: File, path: 5f50018fe4b054958bc8d2e3, name: af-only-gnomad.hg38.vcf.gz,
       secondaryFiles: [{class: File, path: 5f50018fe4b054958bc8d2e5, name: af-only-gnomad.hg38.vcf.gz.tbi}]}, "sbg:fileTypes": "VCF,

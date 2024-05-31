@@ -6,7 +6,7 @@ doc: |
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/danmiller/samtools_parallel:1.20'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/samtools:1.20-parallel'
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
     ramMin: 32000
