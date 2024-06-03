@@ -10,7 +10,6 @@ bcftools_reheader_vcf.cwl|pgc-images.sbgenomics.com/d3b-bixu/bvcftools:latest
 bcftools_strip_ann.cwl|pgc-images.sbgenomics.com/d3b-bixu/vcfutils:latest
 bedtools_intersect.cwl|pgc-images.sbgenomics.com/d3b-bixu/vcfutils:latest
 control-freec-11-6-sbg.cwl|images.sbgenomics.com/vojislav_varjacic/control-freec-11-6:v1
-control_freec_mini_pileup.cwl|images.sbgenomics.com/vojislav_varjacic/control-freec-11-6:v1
 echtvar_anno.cwl|pgc-images.sbgenomics.com/d3b-bixu/echtvar:0.2.0
 gatk_bedtointervallist.cwl|broadinstitute/gatk:4.4.0.0
 gatk_calculatecontamination.cwl|broadinstitute/gatk:4.2.2.0
@@ -34,6 +33,7 @@ kf_mskcc_vcf2maf.cwl|pgc-images.sbgenomics.com/d3b-bixu/kf_vcf2maf:v1.0.3
 manta.cwl|pgc-images.sbgenomics.com/d3b-bixu/manta:1.4.0
 normalize_vcf.cwl|pgc-images.sbgenomics.com/d3b-bixu/vcfutils:latest
 samtools_calmd.cwl|pgc-images.sbgenomics.com/d3b-bixu/samtools:1.9
+samtools_mpileup.cwl|pgc-images.sbgenomics.com/d3b-bixu/samtools:1.20-parallel
 ubuntu_ratio2seg.cwl|pgc-images.sbgenomics.com/d3b-bixu/python:2.7.13
 ubuntu_rename_outputs.cwl|pgc-images.sbgenomics.com/d3b-bixu/ubuntu:18.04
 variant_effect_predictor_105.cwl|ensemblorg/ensembl-vep:release_105.0
