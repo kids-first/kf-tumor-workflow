@@ -120,7 +120,7 @@ inputs:
       run. For WGS, this should be the wgs_calling_regions.interval_list. For WXS, the user must provide the appropriate regions for
       their analysis.", "sbg:fileTypes": "BED, INTERVALLIST, INTERVAL_LIST"}
   blacklist_regions: {type: 'File?', doc: "BED or INTERVALLIST file containing a set of genomic regions to remove from the calling
-      regions for SNV and SV calling.", "sbg:suggestedValue": {class: File, path: 665df995a193b420129c7830, name: hg38-blacklist.v2.bed.gz}, "sbg:fileTypes": "BED, INTERVALLIST, INTERVAL_LIST"}
+      regions for SNV and SV calling.", "sbg:suggestedValue": {class: File, path: 665df995a193b420129c7830, name: hg38-blacklist.v2.bed.gz}, "sbg:fileTypes": "BED, BED.GZ, INTERVALLIST, INTERVAL_LIST"}
   cnv_blacklist_regions: {type: 'File?', doc: "BED or INTERVALLIST file containing a set of genomic regions to remove from the calling
       regions for CNV calling only!", "sbg:suggestedValue": {class: File, path: 665df995a193b420129c782f, name: somatic-hg38_CNV_and_centromere_blacklist.hg38liftover.bed},
       "sbg:fileTypes": "BED, INTERVALLIST, INTERVAL_LIST"}
@@ -133,7 +133,7 @@ inputs:
   output_basename: {type: 'string', doc: "String value to use as basename for outputs"}
   panel_of_normals: {type: 'File?', secondaryFiles: ['.tbi'], doc: "VCF file (and index) of sites observed in normal. A panel of normals
       can be a useful (optional) input to help filter out commonly seen sequencing noise that may appear as low allele-fraction somatic
-      variants.", "sbg:suggestedValue": {class: File, path: 665df995a193b420129c7831, name: 1000g_pon.hg38.vcf.gz, secondaryFiles: [{class: File,
+      variants.", "sbg:suggestedValue": {class: File, path: 65fb2dfef70c1f39338b2aa8, name: 1000g_pon.hg38.vcf.gz, secondaryFiles: [{class: File,
          path: 665df995a193b420129c782e,  name: 1000g_pon.hg38.vcf.gz.tbi}]}, "sbg:fileTypes": "VCF, VCF.GZ"}
   mutect2_af_only_gnomad_vcf: {type: 'File', secondaryFiles: ['.tbi'], doc: "Population vcf (and index) of germline sequencing containing
       allele fractions in VCF format.", "sbg:suggestedValue": {class: File, path: 5f50018fe4b054958bc8d2e3, name: af-only-gnomad.hg38.vcf.gz,
