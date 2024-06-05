@@ -38,8 +38,8 @@ Most inputs have recommended values that should auto import both files and param
  - `indexed_reference_fasta`: FAI and DICT indexed Homo_sapiens_assembly38.fasta
  - `mutect2_af_only_gnomad_vcf`: af-only-gnomad.hg38.vcf.gz
  - `mutect2_exac_common_vcf`: small_exac_common_3.hg38.vcf.gz
- - `gem_mappability_file`: hg38_canonical_150.mappability # will need note on file generation
- - `b_allele`: dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.common_snps.vcf.gz # will need note on file generation
+ - `gem_mappability_file`: hg38_canonical_150.mappability. If you don't have one for your reference and read length, you can first run the [GEM indexer](https://github.com/d3b-center/d3b_bic-seq2/blob/master/tools/gem_gen_index.cwl) tool, then concatenate those results and convert to a mappability file using the [GEM mappability](https://github.com/d3b-center/d3b_bic-seq2/blob/master/tools/gem_gen_mappability.cwl) tool.
+ - `b_allele`: dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.common_snps.vcf.gz. dbSNP v153 was obtained from [the ftp site](https://ftp.ncbi.nih.gov/snp/archive/b153/VCF/GCF_000001405.38.gz). Then, using a awk/perl/bash script of your choice, convert NCBI accession names to UCSC-style chromosome names using [this table](https://hgdownload.soe.ucsc.edu/hubs/GCF/000/001/405/GCF_000001405.39/GCF_000001405.39.chromAlias.txt). Next, run the [VCF normalization tool](https://github.com/kids-first/kf-annotation-tools/blob/master/tools/normalize_vcf.cwl), then use bcftools to extract only common snps: `bcftools view --include INFO/COMMON=1 --types snps dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.vcf.gz -O z -o dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.common_snps.vcf.gz`. Lastly, use tabix to index the resultant file.
  - `vep_cache`: homo_sapiens_merged_vep_105_indexed_GRCh38.tar.gz
  - `genomic_hotspots`: tert.bed # bed file with TERT gene promoter region
  - `protein_snv_hotspots`: protein_snv_cancer_hotspots_v2.ENS105_liftover.tsv
