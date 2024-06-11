@@ -19,6 +19,7 @@ inputs:
   manta_cores: {type: "int?"}
   select_vars_mode: {type: ['null', {type: enum, name: select_vars_mode, symbols: ["gatk", "grep"]}], doc: "Choose 'gatk' for SelectVariants tool, or 'grep' for grep expression", default: "gatk"}
   annotsv_annotations_dir_tgz: {type: 'File', doc: "TAR.GZ'd Directory containing annotations for AnnotSV"}
+  tool_name: { type: 'string?', default: "manta", doc: "Tool name to use in outputs." }
 
 outputs:
   manta_prepass_vcf: {type: File, outputSource: rename_manta_samples/reheadered_vcf}
@@ -37,6 +38,7 @@ steps:
       cores: manta_cores
       reference: indexed_reference_fasta
       hg38_strelka_bed: hg38_strelka_bed
+      tool_name: tool_name
     out: [output_sv, small_indels]
 
   rename_manta_samples:
@@ -48,12 +50,10 @@ steps:
 
   gatk_selectvariants_manta:
     run: ../tools/gatk_selectvariants.cwl
-    label: GATK Select Manta PASS
     in:
       input_vcf: rename_manta_samples/reheadered_vcf
       output_basename: output_basename
-      tool_name:
-        valueFrom: $("manta")
+      tool_name: tool_name
       mode: select_vars_mode
     out: [pass_vcf]
 

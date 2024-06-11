@@ -24,6 +24,7 @@ inputs:
   b_allele: {type: ['null', File], doc: "germline calls, needed for BAF.  VarDict input recommended.  Tool will prefilter for germline and pass if expression given"}
   coeff_var: {type: float, default: 0.05, doc: "Coefficient of variantion to set window size.  Default 0.05 recommended"}
   cfree_sex: {type: ['null', {type: enum, name: sex, symbols: ["XX", "XY"] }], doc: "If known, XX for female, XY for male"}
+  tool_name: { type: 'string?', doc: "Tool name to use in outputs." }
 
 outputs:
   ctrlfreec_cnvs: {type: File, outputSource: rename_outputs/ctrlfreec_cnvs}
@@ -82,6 +83,7 @@ steps:
     in:
       input_files: [control_free_c/cnvs, control_free_c/cnvs_pvalue, control_free_c/config_script, control_free_c/ratio, control_free_c/sample_BAF, control_free_c/info_txt]
       input_pngs: control_free_c/pngs
+      tool_name: tool_name
       output_basename: output_basename
     out: [ctrlfreec_cnvs, ctrlfreec_pval, ctrlfreec_config, ctrlfreec_pngs, ctrlfreec_bam_ratio, ctrlfreec_baf, ctrlfreec_info]
 

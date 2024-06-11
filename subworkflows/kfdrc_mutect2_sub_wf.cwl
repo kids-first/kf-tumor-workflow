@@ -148,7 +148,9 @@ steps:
       reference: indexed_reference_fasta
       input_bams: mutect2/mutect2_bam
       enable_tool: make_bamout
-      output_basename: output_basename
+      output_basename:
+        source: [output_basename, tool_name]
+        valueFrom: $(self.join("."))
     out: [output]
 
   gatk_learn_orientation_bias:

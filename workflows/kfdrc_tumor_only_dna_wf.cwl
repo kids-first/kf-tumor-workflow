@@ -1,14 +1,23 @@
 cwlVersion: v1.2
 class: Workflow
-id: kfdrc_tomor_only_dna_wf
-label: KFDRC DNA Tumor Only Beta Production Workflow
+id: kfdrc_tumor_only_dna_wf
+label: KFDRC DNA Tumor Only Production Workflow
 doc: |
   # Kids First DRC Tumor Only Pipeline
 
-  This repository contains tools and workflows for processing of tumor-only samples.
-  It is currently in beta phase.
-  Much of the components have been borrowed from the Kids First Somatic Workflow.
-  It can also be used to process PDX data by first pre-processing reads using the Xenome tool, explained more here in documentation.
+  This repository contains tools and workflows for processing of tumor-only
+  samples. The Kids First DRC recommends running the tumor only pipeline ONLY
+  when no matched normal sample is available. If your data has matched normals
+  we recommend running the [Kids First DRC Somatic Variant
+  Workflow](https://github.com/kids-first/kf-somatic-workflow) instead.
+
+  When comparing the SNV outputs of this workflow to those of the somatic workflow,
+  we have found the outputs to be considerably more noisy. To cut down on this
+  noise, we have included a set of recommended filters for Mutect2 [in our
+  docs](./docs/MUTECT2_TUMOR_ONLY_FILTERING.md).
+
+  It can also be used to process PDX data by first pre-processing reads using the
+  Xenome tool, explained more here in documentation.
 
   <p align="center">
     <img src="docs/kids_first_logo.svg" alt="Kids First repository logo" width="660px" />
@@ -43,8 +52,8 @@ doc: |
    - `indexed_reference_fasta`: FAI and DICT indexed Homo_sapiens_assembly38.fasta
    - `mutect2_af_only_gnomad_vcf`: af-only-gnomad.hg38.vcf.gz
    - `mutect2_exac_common_vcf`: small_exac_common_3.hg38.vcf.gz
-   - `gem_mappability_file`: hg38_canonical_150.mappability # will need note on file generation
-   - `b_allele`: dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.common_snps.vcf.gz # will need note on file generation
+   - `gem_mappability_file`: hg38_canonical_150.mappability. If you don't have one for your reference and read length, you can first run the [GEM indexer](https://github.com/d3b-center/d3b_bic-seq2/blob/master/tools/gem_gen_index.cwl) tool, then concatenate those results and convert to a mappability file using the [GEM mappability](https://github.com/d3b-center/d3b_bic-seq2/blob/master/tools/gem_gen_mappability.cwl) tool.
+   - `b_allele`: dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.common_snps.vcf.gz. dbSNP v153 was obtained from [the ftp site](https://ftp.ncbi.nih.gov/snp/archive/b153/VCF/GCF_000001405.38.gz). Then, using a awk/perl/bash script of your choice, convert NCBI accession names to UCSC-style chromosome names using [this table](https://hgdownload.soe.ucsc.edu/hubs/GCF/000/001/405/GCF_000001405.39/GCF_000001405.39.chromAlias.txt). Next, run the [VCF normalization tool](https://github.com/kids-first/kf-annotation-tools/blob/master/tools/normalize_vcf.cwl), then use bcftools to extract only common snps: `bcftools view --include INFO/COMMON=1 --types snps dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.vcf.gz -O z -o dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.common_snps.vcf.gz`. Lastly, use tabix to index the resultant file.
    - `vep_cache`: homo_sapiens_merged_vep_105_indexed_GRCh38.tar.gz
    - `genomic_hotspots`: tert.bed # bed file with TERT gene promoter region
    - `protein_snv_hotspots`: protein_snv_cancer_hotspots_v2.ENS105_liftover.tsv
@@ -115,15 +124,17 @@ inputs:
   indexed_reference_fasta: {type: 'File', secondaryFiles: [{pattern: ".fai", required: true}, {pattern: "^.dict", required: true}],
     doc: "Reference fasta to which the input reads were aligned. Must include FAI and DICT indicies", "sbg:suggestedValue": {class: File,
       path: 60639014357c3a53540ca7a3, name: Homo_sapiens_assembly38.fasta, secondaryFiles: [{class: File, path: 60639016357c3a53540ca7af,
-          name: Homo_sapiens_assembly38.fasta.fai}, {class: File, path: 60639019357c3a53540ca7e7, name: Homo_sapiens_assembly38.dict}]}, "sbg:fileTypes": "FASTA, FA"}
+          name: Homo_sapiens_assembly38.fasta.fai}, {class: File, path: 60639019357c3a53540ca7e7, name: Homo_sapiens_assembly38.dict}]},
+    "sbg:fileTypes": "FASTA, FA"}
   calling_regions: {type: 'File', doc: "BED or INTERVALLIST file containing a set of genomic regions over which the callers will be
       run. For WGS, this should be the wgs_calling_regions.interval_list. For WXS, the user must provide the appropriate regions for
       their analysis.", "sbg:fileTypes": "BED, INTERVALLIST, INTERVAL_LIST"}
   blacklist_regions: {type: 'File?', doc: "BED or INTERVALLIST file containing a set of genomic regions to remove from the calling
-      regions for SNV and SV calling.", "sbg:suggestedValue": {class: File, path: 665df995a193b420129c7830, name: hg38-blacklist.v2.bed.gz}, "sbg:fileTypes": "BED, BED.GZ, INTERVALLIST, INTERVAL_LIST"}
+      regions for SNV and SV calling.", "sbg:suggestedValue": {class: File, path: 665df995a193b420129c7830, name: hg38-blacklist.v2.bed.gz},
+    "sbg:fileTypes": "BED, BED.GZ, INTERVALLIST, INTERVAL_LIST"}
   cnv_blacklist_regions: {type: 'File?', doc: "BED or INTERVALLIST file containing a set of genomic regions to remove from the calling
       regions for CNV calling only!", "sbg:suggestedValue": {class: File, path: 665df995a193b420129c782f, name: somatic-hg38_CNV_and_centromere_blacklist.hg38liftover.bed},
-      "sbg:fileTypes": "BED, INTERVALLIST, INTERVAL_LIST"}
+    "sbg:fileTypes": "BED, INTERVALLIST, INTERVAL_LIST"}
   input_tumor_aligned: {type: 'File', secondaryFiles: [{pattern: ".bai", required: false}, {pattern: "^.bai", required: false}, {
         pattern: ".crai", required: false}, {pattern: "^.crai", required: false}], doc: "BAM/SAM/CRAM file containing tumor reads",
     "sbg:fileTypes": "BAM, CRAM, SAM"}
@@ -133,8 +144,8 @@ inputs:
   output_basename: {type: 'string', doc: "String value to use as basename for outputs"}
   panel_of_normals: {type: 'File?', secondaryFiles: ['.tbi'], doc: "VCF file (and index) of sites observed in normal. A panel of normals
       can be a useful (optional) input to help filter out commonly seen sequencing noise that may appear as low allele-fraction somatic
-      variants.", "sbg:suggestedValue": {class: File, path: 65fb2dfef70c1f39338b2aa8, name: 1000g_pon.hg38.vcf.gz, secondaryFiles: [{class: File,
-         path: 665df995a193b420129c782e,  name: 1000g_pon.hg38.vcf.gz.tbi}]}, "sbg:fileTypes": "VCF, VCF.GZ"}
+      variants.", "sbg:suggestedValue": {class: File, path: 65fb2dfef70c1f39338b2aa8, name: 1000g_pon.hg38.vcf.gz, secondaryFiles: [
+        {class: File, path: 665df995a193b420129c782e, name: 1000g_pon.hg38.vcf.gz.tbi}]}, "sbg:fileTypes": "VCF, VCF.GZ"}
   mutect2_af_only_gnomad_vcf: {type: 'File', secondaryFiles: ['.tbi'], doc: "Population vcf (and index) of germline sequencing containing
       allele fractions in VCF format.", "sbg:suggestedValue": {class: File, path: 5f50018fe4b054958bc8d2e3, name: af-only-gnomad.hg38.vcf.gz,
       secondaryFiles: [{class: File, path: 5f50018fe4b054958bc8d2e5, name: af-only-gnomad.hg38.vcf.gz.tbi}]}, "sbg:fileTypes": "VCF,
@@ -413,6 +424,8 @@ steps:
       b_allele: gatk_filter_germline/filtered_pass_vcf
       coeff_var: cfree_coeff_var
       cfree_sex: cfree_sex
+      tool_name:
+        valueFrom: "controlfreec.tumor_only"
     out: [ctrlfreec_cnvs, ctrlfreec_pval, ctrlfreec_config, ctrlfreec_pngs, ctrlfreec_bam_ratio, ctrlfreec_bam_seg, ctrlfreec_baf,
       ctrlfreec_info]
   manta:
@@ -429,6 +442,8 @@ steps:
       input_tumor_name: input_tumor_name
       annotsv_annotations_dir_tgz: annotsv_annotations_dir_tgz
       output_basename: output_basename
+      tool_name:
+        valueFrom: "manta.tumor_only"
       manta_memory: manta_memory
       manta_cores: manta_cores
     out: [manta_prepass_vcf, manta_pass_vcf, manta_small_indels, annotsv_annotated_calls, annotsv_unannotated_calls]
@@ -451,5 +466,5 @@ hints:
 - VCF
 
 "sbg:links":
-- id: 'https://github.com/kids-first/kf-tumor-workflow/tree/v0.4.1-beta'
+- id: 'https://github.com/kids-first/kf-tumor-workflow/tree/v1.0.0'
   label: github-release
