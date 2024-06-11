@@ -25,9 +25,9 @@ arguments:
               parts.shift();
               var check = fname.substr(fname.length - 10);
               if (check == "config.txt") {
-                  cmd += "cp " + inputs.input_files[i].path + " " + inputs.output_basename + ".controlfreec.config.txt;";
+                  cmd += "cp " + inputs.input_files[i].path + " " + [inputs.output_basename, inputs.tool_name, "config.txt;"].join(".");
               } else {
-              fname = inputs.output_basename + ".controlfreec." + parts.join(".");
+              fname = [inputs.output_basename, inputs.tool_name, parts.join(".")].join(".");
               cmd += " cp " + inputs.input_files[i].path + " " + fname + ";";
               }
             }
@@ -41,7 +41,7 @@ arguments:
             fname = fname.replace(".txt", "");
             var parts = fname.split(".");
             parts.shift();
-            fname = inputs.output_basename + ".controlfreec." + parts.join(".") + ".png";
+            fname = [inputs.output_basename, inputs.tool_name, parts.join("."), "png"].join(".");
             cmd += " cp " + inputs.input_pngs[j].path + " " + fname + ";";
             }
           return cmd;
@@ -50,6 +50,7 @@ arguments:
 inputs:
   input_files: File[]
   input_pngs: File[]
+  tool_name: { type: 'string?', default: "controlfreec", doc: "Tool name to use in outputs." }
   output_basename: string
 outputs:
   ctrlfreec_baf:
