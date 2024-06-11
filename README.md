@@ -4,12 +4,21 @@ This repository contains tools and workflows for processing of tumor-only
 samples. The Kids First DRC recommends running the tumor only pipeline ONLY
 when no matched normal sample is available. If your data has matched normals
 we recommend running the [Kids First DRC Somatic Variant
-Workflow](https://github.com/kids-first/kf-somatic-workflow) instead.
+Workflow](https://github.com/kids-first/kf-somatic-workflow) instead. This
+workflow is not a traditional production pipeline run on all data, but rather
+is run at the user's request.
 
 When comparing the SNV outputs of this workflow to those of the somatic workflow,
 we have found the outputs to be considerably more noisy. To cut down on this
-noise, we have included a set of recommended filters for Mutect2 [in our
-docs](./docs/MUTECT2_TUMOR_ONLY_FILTERING.md).
+noise, we have included some recommended inputs, parameters, and filters for
+Mutect2 [in our docs](./docs/MUTECT2_TUMOR_ONLY_FILTERING.md). In short we recommend:
+- Restrict the callable regions with a blacklist and Panel of Normals (PON)
+- Remove low support reads:
+   - Allele Depth (AD) == 0: WGS uninformative reads
+   - Variant Allele Frequency (VAF) < 1%: WXS noise
+- Remove potential germline variants: gnomAD AF > 0.00003
+- Only keep variants that are PASS
+- Rescue any variants that fall in hotspot regions/genes
 
 It can also be used to process PDX data by first pre-processing reads using the
 Xenome tool, explained more here in documentation.

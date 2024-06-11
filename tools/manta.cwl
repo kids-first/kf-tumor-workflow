@@ -17,7 +17,7 @@ arguments:
   - position: 0
     shellQuote: false
     valueFrom: >-
-      /manta-1.4.0.centos6_x86_64/bin/configManta.py
+      /manta-1.4.0.centos6_x86_64/bin/configManta.py --runDir=./
   - position: 9
     shellQuote: false
     valueFrom: >-
