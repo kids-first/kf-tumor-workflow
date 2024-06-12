@@ -153,7 +153,7 @@ inputs:
   output_basename: {type: 'string', doc: "String value to use as basename for outputs"}
   panel_of_normals: {type: 'File?', secondaryFiles: ['.tbi'], doc: "VCF file (and index) of sites observed in normal. A panel of normals
       can be a useful (optional) input to help filter out commonly seen sequencing noise that may appear as low allele-fraction somatic
-      variants.", "sbg:suggestedValue": {class: File, path: 65fb2dfef70c1f39338b2aa8, name: 1000g_pon.hg38.vcf.gz, secondaryFiles: [
+      variants.", "sbg:suggestedValue": {class: File, path: 665df995a193b420129c7831, name: 1000g_pon.hg38.vcf.gz, secondaryFiles: [
         {class: File, path: 665df995a193b420129c782e, name: 1000g_pon.hg38.vcf.gz.tbi}]}, "sbg:fileTypes": "VCF, VCF.GZ"}
   mutect2_af_only_gnomad_vcf: {type: 'File', secondaryFiles: ['.tbi'], doc: "Population vcf (and index) of germline sequencing containing
       allele fractions in VCF format.", "sbg:suggestedValue": {class: File, path: 5f50018fe4b054958bc8d2e3, name: af-only-gnomad.hg38.vcf.gz,
@@ -181,8 +181,8 @@ inputs:
   cfree_mate_orientation_sample: {type: ['null', {type: enum, name: mate_orientation_sample, symbols: ["0", "FR", "RF", "FF"]}], default: "FR",
     doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)"}
   b_allele: {type: 'File?', secondaryFiles: [{pattern: ".tbi", required: true}], doc: "germline calls, needed for BAF.  GATK HC VQSR
-      input recommended. Tool will prefilter for germline and pass if expression given", "sbg:suggestedValue": {class: File, path: 663e7c69f180a9177dd4212b,
-      name: dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.common_snps.vcf.gz, secondaryFiles: [{class: File, path: 6509b6a37f6417197fc158fc,
+      input recommended. Tool will prefilter for germline and pass if expression given", "sbg:suggestedValue": {class: File, path: 663d2bcc27374715fccd8c67,
+      name: dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.common_snps.vcf.gz, secondaryFiles: [{class: File, path: 663d2bcc27374715fccd8c66,
           name: dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.common_snps.vcf.gz.tbi}]}}
   cfree_coeff_var: {type: 'float?', default: 0.05, doc: "Coefficient of variation to set window size. Default 0.05 recommended"}
   cfree_sex: {type: ['null', {type: enum, name: sex, symbols: ["XX", "XY"]}], doc: "If known, XX for female, XY for male"}
@@ -222,7 +222,7 @@ inputs:
       < 1\"]"}
   maf_center: {type: 'string?', doc: "Sequencing center of variant called", default: "."}
   custom_enst: {type: 'File?', doc: "Use a file with ens tx IDs for each gene to override VEP PICK", "sbg:suggestedValue": {class: File,
-      path: 6480c8a61dfc710d24a3a368, name: kf_isoform_override.tsv}}
+      path: 663d2bcc27374715fccd8c65, name: kf_isoform_override.tsv}}
 
   # Resource Control
   vep_ram: {type: 'int?', default: 32, doc: "In GB, may need to increase this value depending on the size/complexity of input"}
