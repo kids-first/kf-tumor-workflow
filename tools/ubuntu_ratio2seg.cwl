@@ -29,7 +29,7 @@ arguments:
         smp = "$(inputs.sample_name)"
 
         ratio_file = open("$(inputs.ctrlfreec_ratio.path)")
-        out = open("$(inputs.output_basename).controlfreec.seg", "w")
+        out = open("$(inputs.output_basename).$(inputs.tool_name).seg", "w")
         out.write("ID\tchrom\tloc.start\tloc.end\tnum.mark\tseg.mean\n") 
         head = next(ratio_file)
         count = 0
@@ -70,6 +70,7 @@ inputs:
   ctrlfreec_ratio: File
   sample_name: string
   output_basename: string
+  tool_name: { type: 'string?', default: "controlfreec", doc: "Tool name to use for output filename" }
 
 outputs:
   ctrlfreec_ratio2seg:

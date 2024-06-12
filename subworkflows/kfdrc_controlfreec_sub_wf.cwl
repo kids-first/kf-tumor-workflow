@@ -97,4 +97,5 @@ steps:
       ctrlfreec_ratio: control_free_c/ratio
       sample_name: input_tumor_name
       output_basename: output_basename
+      tool_name: tool_name
     out: [ctrlfreec_ratio2seg]
