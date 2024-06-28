@@ -2,7 +2,7 @@
 When it comes to somatic variant calling, having a matched normal sample from the patient is always preferred.
 However, this is not always possible.
 Mutect2, in our opinion as of this writing, is the best caller to use when a matched normal is not available in tumor-only calling mode.
-Using the same gold standard dataset that we used to benchmark (see the first two sections of [this doc](https://github.com/kids-first/kf-somatic-workflow/blob/feature/mb-add-bench-doc/docs/SOMATIC_SNV_BENCHMARK.md)) our somatic with matched tumor-normal variant calling methods, we reviewed filtering strategies from other publications ([TOSCA](https://academic.oup.com/bioinformaticsadvances/article/2/1/vbac070/6717791?login=false) and [HIVE Dragen Pipeline](https://www.fda.gov/science-research/fda-science-forum/hive-dragen-pipeline-enables-somatic-tumor-only-filtration)), and chose the best combination that maximized F1 score while minimizing true positive (TP) loss as aggressively pursuing false positive (FP) reduction and results in a massive loss of TP calls.
+Using the same gold standard dataset that we used to benchmark (see the first two sections of [this doc](https://github.com/kids-first/kf-somatic-workflow/blob/master/docs/SOMATIC_SNV_BENCHMARK.md)) our somatic with matched tumor-normal variant calling methods, we reviewed filtering strategies from other publications ([TOSCA](https://academic.oup.com/bioinformaticsadvances/article/2/1/vbac070/6717791?login=false) and [HIVE Dragen Pipeline](https://www.fda.gov/science-research/fda-science-forum/hive-dragen-pipeline-enables-somatic-tumor-only-filtration)), and chose the best combination that maximized F1 score while minimizing true positive (TP) loss as aggressively pursuing false positive (FP) reduction and results in a massive loss of TP calls.
 Our resultant filtering strategy can be found [here](https://github.com/kids-first/kf-tumor-workflow?tab=readme-ov-file#kids-first-drc-tumor-only-pipeline) with benchmark results below.
 
 ## Initial Assessment
@@ -103,7 +103,7 @@ The table below summarized efforts of trying PON, blacklists, and various filter
 | GDC PoN | TOSCA (PASS+GNOMAD_HARD+DP30)|  36995 |  15999 |  72917 |  0.45 | 0.7 | 0.34 |
 | GDC PoN | Blacklist TOSCA (PASS+GNOMAD_HARD+DP30)| 36837 |  13898 |  73075 |  0.46 | 0.73 | 0.34 |
 
+Lastly, for WGS filtering, Mutect2 results may have 0 allele depths for some calls. This is explained [here](https://gatk.broadinstitute.org/hc/en-us/articles/360035532252-Allele-Depth-AD-is-lower-than-expected) and has spurred a common sense addition of `AD > 0`
+
 ## WXS Filtering
-WGS filtering is generalizable and safe to use for WXS, but WXS just needs a little more. After examining a well-characterized matched tumor-normal WXS set from the OpenPedCan project, we learned the following:
- - Mutect2 results may have 0 allele depths for some calls. This is explained [here](https://gatk.broadinstitute.org/hc/en-us/articles/360035532252-Allele-Depth-AD-is-lower-than-expected) and has spurred a common sense addition of `AD > 0`
- - Many high depth regions have VAF < 1%. An example was a sample having 6495 of the 7357 are present at an VAF below 1%. If compared to the corresponding matched-normal analysis, only one of those calls were deemed valid with VAF < 1%. Therefore, setting 1% as a floor for WXS is more than reasonable
+WGS filtering is generalizable and safe to use for WXS, but WXS just needs a little more. After examining a well-characterized matched tumor-normal WXS set from the OpenPedCan project, we learned the following: Many high depth regions have VAF < 1%. An example was a sample having 6495 of the 7357 are present at an VAF below 1%. If compared to the corresponding matched-normal analysis, only one of those calls were deemed valid with VAF < 1%. Therefore, setting 1% as a floor for WXS is more than reasonable
