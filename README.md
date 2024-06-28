@@ -20,6 +20,7 @@ Mutect2 [in our docs](./docs/MUTECT2_TUMOR_ONLY_FILTERING.md). In short we recom
 - Only keep variants that are PASS
 - Rescue any variants that fall in hotspot regions/genes
 
+Benchmarking results of SNV calling used to inform our filtering criteria can be found in [this README](docs/TUMOR_ONLY_SNV_BENCH_RESULTS.md)
 It can also be used to process PDX data by first pre-processing reads using the
 Xenome tool, explained more here in documentation.
 
