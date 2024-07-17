@@ -202,7 +202,7 @@ inputs:
   protein_snv_hotspots: {type: 'File[]?', doc: "Column-name-containing, tab-delimited\
       \ file(s) containing protein names and amino acid positions corresponding to\
       \ hotspots", "sbg:suggestedValue": [{class: File, path: 645919782fe81458768c552c,
-        name: protein_snv_cancer_hotspots_v2.ENS105_liftover.tsv}]}
+        name: kfdrc_protein_snv_cancer_hotspots_20240718.txt}]}
   protein_indel_hotspots: {type: 'File[]?', doc: "Column-name-containing, tab-delimited\
       \ file(s) containing protein names and amino acid position ranges corresponding\
       \ to hotspots", "sbg:suggestedValue": [{class: File, path: 645919782fe81458768c552d,

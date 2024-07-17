@@ -61,7 +61,7 @@ Most inputs have recommended values that should auto import both files and param
  - `b_allele`: dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.common_snps.vcf.gz. dbSNP v153 was obtained from [the ftp site](https://ftp.ncbi.nih.gov/snp/archive/b153/VCF/GCF_000001405.38.gz). Then, using a awk/perl/bash script of your choice, convert NCBI accession names to UCSC-style chromosome names using [this table](https://hgdownload.soe.ucsc.edu/hubs/GCF/000/001/405/GCF_000001405.39/GCF_000001405.39.chromAlias.txt). Next, run the [VCF normalization tool](https://github.com/kids-first/kf-annotation-tools/blob/master/tools/normalize_vcf.cwl), then use bcftools to extract only common snps: `bcftools view --include INFO/COMMON=1 --types snps dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.vcf.gz -O z -o dbSNP_v153_ucsc-compatible.converted.vt.decomp.norm.common_snps.vcf.gz`. Lastly, use tabix to index the resultant file.
  - `vep_cache`: homo_sapiens_merged_vep_105_indexed_GRCh38.tar.gz
  - `genomic_hotspots`: tert.bed # bed file with TERT gene promoter region
- - `protein_snv_hotspots`: protein_snv_cancer_hotspots_v2.ENS105_liftover.tsv
+ - `protein_snv_hotspots`: kfdrc_protein_snv_cancer_hotspots_20240718.txt
  - `protein_indel_hotspots`: protein_indel_cancer_hotspots_v2.ENS105_liftover.tsv
  - `echtvar_anno_zips`: gnomad.v3.1.1.custom.echtvar.zip
 ### Necessary for user to define:
