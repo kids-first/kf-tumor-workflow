@@ -23,7 +23,7 @@ inputs:
       Type of model to use for variant calling. Set this flag to use the default model
       associated with each type, and it will set necessary flags corresponding to each model.
       If you want to use a customized model, add --customized_model flag in addition to this flag.
-  num_shards: { type: 'int?', default: 36, doc: "Number of shards to create." }
+  num_shards: { type: 'int?', default: 32, doc: "Number of shards to create." }
   output_gvcf: { type: 'boolean?', doc: "Set to true to return a gVCF output." }
   output_basename: { type: 'string', doc: "String to use as basename for outputs." }
   pon_filtering_custom: { type: 'File?', doc: "Optional. Custom VCF with Panel of Normals (PON) data.If set, the output VCF will be filtered: any variants that appear in PON will be marked with a PON filter, and PASS filter value will be removed." }
@@ -67,7 +67,7 @@ steps:
   deepsomatic_make_examples_candidate_sweep:
     hints:
       - class: 'sbg:AWSInstanceType'
-        value: c5.9xlarge
+        value: c6i.8xlarge
     run: ../tools/deepsomatic_make_examples.cwl
     when: $(inputs.use_candidate_partition == true)
     scatter: [task]
@@ -151,7 +151,7 @@ steps:
   deepsomatic_make_examples_calling:
     hints:
       - class: 'sbg:AWSInstanceType'
-        value: c5.9xlarge
+        value: c6i.8xlarge
     run: ../tools/deepsomatic_make_examples.cwl
     scatter: [task]
     in:
