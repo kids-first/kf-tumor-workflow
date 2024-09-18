@@ -10,6 +10,8 @@ requirements:
     coresMin: $(inputs.cpu)
   - class: DockerRequirement
     dockerPull: 'google/deepsomatic:1.7.0'
+  - class: InitialWorkDirRequirement
+    listing: $(inputs.candidate_positions)
 baseCommand: []
 arguments:
   - position: 0
@@ -27,7 +29,7 @@ arguments:
   - position: 2
     shellQuote: false
     valueFrom: >-
-      $(inputs.output_candidate_positions ? "--candidate_positions candidate_positions@" + inputs.task_total : "")
+      $(inputs.output_candidate_positions || inputs.candidate_positions != null ? "--candidate_positions candidate_positions@" + inputs.task_total : "")
 inputs:
   # Main Args
   ref: { type: 'File', secondaryFiles: [{ pattern: '.fai', required: true }], inputBinding: { position: 2, prefix: "--ref"}, doc: "Required. Genome reference to use. Must have an associated FAI index as well. Supports text or gzipped references. Should match the reference used to align the BAM file provided to --reads." }
@@ -51,7 +53,7 @@ inputs:
       calling - examples are prepared for inference only.
       training - examples are prepared with labels for training. 
       candidate_sweep - (advanced pre-step) - candidate positions are prepared for the subsequent run of make_examples with intervals created with equal number of candidates. NOTE: When this option is used, make_examples must be run again with the mode set to calling.
-  candidate_positions: { type: 'File?', inputBinding: { position: 2, prefix: "--candidate_positions"}, doc: "Path to the binary file containing candidate positions." }
+  candidate_positions: { type: 'File[]?', doc: "Path to the binary file containing candidate positions." }
   output_candidate_positions: { type: 'boolean?', doc: "Should we write the binary file containing candidate positions?" }
   runtime_by_region: { type: 'string?', inputBinding: { position: 2, prefix: "--runtime_by_region"}, doc: "[optional] Output filename for a TSV file of runtimes and other stats by region. If examples are sharded, this should be sharded into the same number of shards as the examples." }
   # examples_outname: { type: 'string', inputBinding: { position: 2, prefix: "--examples"}, doc: "Required. Path to write tf.Example protos in TFRecord format." }
@@ -82,8 +84,9 @@ inputs:
 outputs:
   examples:
     type: File
+    secondaryFiles: [{pattern: ".example_info.json", required: true}]
     outputBinding:
-      glob: "*somatic.tfrecord*" 
+      glob: "*somatic.tfrecord*gz" 
   candidates:
     type: 'File?'
     outputBinding:
@@ -91,4 +94,4 @@ outputs:
   gvcf:
     type: 'File?'
     outputBinding:
-      glob: "*.gvcf.tfrecord*"
+      glob: "gvcf.tfrecord*gz"
