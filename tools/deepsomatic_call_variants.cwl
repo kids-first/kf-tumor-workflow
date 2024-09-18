@@ -17,11 +17,11 @@ arguments:
   - position: 0
     shellQuote: false
     valueFrom: >-
-      call_varaints
+      call_variants
 inputs:
   checkpoint: { type: 'string?', inputBinding: { position: 2, prefix: "--checkpoint"}, doc: "Path to the TensorFlow model checkpoint." }
   checkpoint_custom: { type: 'File?', inputBinding: { position: 2, prefix: "--checkpoint"}, doc: "Custom TensorFlow model checkpoint." }
-  examples: { type: 'File[]', doc: "Required. tf.Example protos containing DeepVariant candidate variants in TFRecord format, as emitted by make_examples. Can be a comma-separated list of files, and the file names can contain wildcard characters." }
+  examples: { type: 'File[]', secondaryFiles: [{pattern: ".example_info.json", required: true}], doc: "Required. tf.Example protos containing DeepVariant candidate variants in TFRecord format, as emitted by make_examples. Can be a comma-separated list of files, and the file names can contain wildcard characters." }
   examples_name: { type: 'string', inputBinding: { position: 2, prefix: "--examples" }, doc: "Short name convention for all example files (e.g. filename@10.gz)" }
   outfile: { type: 'string', inputBinding: { position: 2, prefix: "--outfile"}, doc: "Required. Destination path where we will write output candidate variants with additional likelihood information in TFRecord format of CallVariantsOutput protos." }
 
@@ -38,6 +38,6 @@ inputs:
     doc: "Maximum GB of RAM to allocate for this tool."
 outputs:
   output: 
-    type: File
+    type: File[]
     outputBinding:
-      glob: $(inputs.outfile)
+      glob: "*cvo-*.tfrecord.gz"

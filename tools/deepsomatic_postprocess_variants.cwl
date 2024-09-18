@@ -11,7 +11,7 @@ requirements:
   - class: DockerRequirement
     dockerPull: 'google/deepsomatic:1.7.0-gpu'
   - class: InitialWorkDirRequirement
-    listing: [$(inputs.nonvariant_site_tfrecords), $(inputs.small_model_cnv_records)]
+    listing: [$(inputs.infile), $(inputs.nonvariant_site_tfrecords), $(inputs.small_model_cnv_records)]
 baseCommand: []
 arguments:
   - position: 0
@@ -20,7 +20,8 @@ arguments:
       postprocess_variants
 inputs:
   gvcf_outfile: { type: 'string?', inputBinding: { position: 2, prefix: "--gvcf_outfile"}, doc: "Optional. Destination path where we will write the Genomic VCF output." }
-  infile: { type: 'File[]', inputBinding: { position: 2, prefix: "--infile"}, doc: "Required. Path(s) to CallVariantOutput protos in TFRecord format to postprocess. These should be the complete set of outputs for call_variants.py." }
+  infile: { type: 'File[]', doc: "Required. Path(s) to CallVariantOutput protos in TFRecord format to postprocess. These should be the complete set of outputs for call_variants.py." }
+  infile_path: { type: 'string', inputBinding: { position: 2, prefix: "--infile" }, doc: "Smart path through which all CallVariantOutput protos in TFRecord format to postprocess." }
   nonvariant_site_tfrecords: { type: 'File[]?', doc: "Optional. Path(s) to the non-variant sites protos in TFRecord format to convert to gVCF file. This should be the complete set of outputs from the --gvcf flag of make_examples.py." }
   nonvariant_site_tfrecord_path: { type: 'string?', inputBinding: { position: 2, prefix: "--nonvariant_site_tfrecord_path", shellQuote: false }, doc: "Smart path through which all nonvariant_site_tfrecords files can be found." } 
   outfile: { type: 'string', inputBinding: { position: 2, prefix: "--outfile"}, doc: "Required. Destination path where we will write output variant calls in VCF format." }
@@ -47,9 +48,11 @@ inputs:
 outputs:
   output: 
     type: File
+    secondaryFiles: [{pattern: ".tbi", required: true}]
     outputBinding:
       glob: $(inputs.outfile)
   gvcf:
-    type: File
+    type: File?
+    secondaryFiles: [{pattern: ".tbi", required: true}]
     outputBinding:
       glob: $(inputs.gvcf_outfile)
