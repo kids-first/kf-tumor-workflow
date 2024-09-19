@@ -231,6 +231,10 @@ steps:
               return MAKE_EXAMPLE_EA_MAP[self[1]];
             }
           }
+      ram:
+        source: model_type
+        valueFrom: |
+          $(self.search("PACBIO") != -1 ? 3 : null)
     out: [examples, candidates, gvcf]
   deepsomatic_call_variants:
     hints:

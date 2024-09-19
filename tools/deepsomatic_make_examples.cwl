@@ -6,7 +6,7 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
   - class: ResourceRequirement
-    ramMin: $(inputs.max_memory*1000)
+    ramMin: $(inputs.ram*1000)
     coresMin: $(inputs.cpu)
   - class: DockerRequirement
     dockerPull: 'google/deepsomatic:1.7.0'
@@ -79,7 +79,7 @@ inputs:
     doc: "Number of CPUs to allocate to this task."
   ram:
     type: 'int?'
-    default: 1
+    default: 2
     doc: "Maximum GB of RAM to allocate for this tool."
 outputs:
   examples:
