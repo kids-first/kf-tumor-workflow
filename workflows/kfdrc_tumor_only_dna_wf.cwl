@@ -475,5 +475,5 @@ hints:
 - VCF
 
 "sbg:links":
-- id: 'https://github.com/kids-first/kf-tumor-workflow/tree/v1.0.1'
+- id: 'https://github.com/kids-first/kf-tumor-workflow/tree/v1.0.2'
   label: github-release
