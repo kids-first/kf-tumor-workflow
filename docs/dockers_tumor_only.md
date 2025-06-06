@@ -5,6 +5,7 @@ TOOL|DOCKER
 add_strelka2_fields.cwl|pgc-images.sbgenomics.com/d3b-bixu/add-strelka2-fields:1.0.0
 annotsv.cwl|pgc-images.sbgenomics.com/d3b-bixu/annotsv:3.1.1
 awk_chrlen_builder.cwl|ubuntu:22.04
+bcftools_annotate_rename_chr.cwl|pgc-images.sbgenomics.com/d3b-bixu/vcfutils:latest
 bcftools_filter_vcf.cwl|pgc-images.sbgenomics.com/d3b-bixu/bcftools:1.20
 bcftools_reheader_vcf.cwl|pgc-images.sbgenomics.com/d3b-bixu/bvcftools:latest
 bcftools_strip_ann.cwl|pgc-images.sbgenomics.com/d3b-bixu/vcfutils:latest
